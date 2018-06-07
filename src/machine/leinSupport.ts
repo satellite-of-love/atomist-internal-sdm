@@ -37,6 +37,7 @@ import * as _ from "lodash";
 import * as path from "path";
 import { DockerBuildGoal, VersionGoal } from "@atomist/sdm/goal/common/commonGoals";
 import * as util from "util";
+import * as fs from "fs";
 
 export const LeinSupport: ExtensionPack = {
     name: "Leiningen Support",
@@ -75,6 +76,7 @@ export const LeinSupport: ExtensionPack = {
 };
 
 const key = "(12 15 6 4 13 3 9 10 0 8 8 14 7 16 0 3)";
+const defaultEncryptedEnv = {env: clj.vault(key, `${fs.realpathSync(__dirname)}/resources/vault.txt`)};
 
 function leinBuilder(projectLoader: ProjectLoader): Builder {
     return new SpawnBuilder(
@@ -94,12 +96,9 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
                     };
                 },
                 enrich: async (options: SpawnOptions, p: GitProject): Promise<SpawnOptions> => {
-                    const encryptedEnv = {env: {ARTIFACTORY_USER: clj.vault(key, `${p.baseDir}/vault.txt`)["artifactory-user"],
-                                                ARTIFACTORY_PWD: clj.vault(key, `${p.baseDir}/vault.txt`)["artifactory-pwd"],
-                                                CLOJARS_USERNAME: clj.vault(key, `${p.baseDir}/vault.txt`)["clojars-username"],
-                                                CLOJARS_PASSWORD: clj.vault(key, `${p.baseDir}/vault.txt`)["clojars-password"]}};
-                    logger.info(`secrets: ${util.inspect(encryptedEnv, false, null)}`);                            
-                    const enriched = _.merge(options, encryptedEnv) as SpawnOptions;
+                    const encryptedEnv = {env: clj.vault(key, `${p.baseDir}/vault.txt`)};
+                    const enriched = _.merge(options, defaultEncryptedEnv, encryptedEnv) as SpawnOptions;
+                    logger.info(`enriched: ${util.inspect(encryptedEnv, false, null)}`);
                     return enriched;
                 },
                 projectToAppInfo: async (p: GitProject) => {
