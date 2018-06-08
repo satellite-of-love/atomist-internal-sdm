@@ -76,7 +76,9 @@ export const LeinSupport: ExtensionPack = {
 };
 
 const key = "(12 15 6 4 13 3 9 10 0 8 8 14 7 16 0 3)";
-const defaultEncryptedEnv = {env: clj.vault(key, `${fs.realpathSync(__dirname)}/resources/vault.txt`)};
+const dirString = fs.realpathSync(__dirname);
+const vault = path.join(dirString, "../../../resources/vault.txt");
+const defaultEncryptedEnv = {env: clj.vault(key, vault)};
 
 function leinBuilder(projectLoader: ProjectLoader): Builder {
     return new SpawnBuilder(

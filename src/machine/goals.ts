@@ -74,7 +74,7 @@ export const LeinBuildGoals = new Goals(
 );
 
 export const LeinDockerGoals = new Goals(
-    "hackLein Docker Build",
+    "Lein Docker Build",
     ...LeinBuildGoals.goals,
     DockerBuildGoal,
 );
