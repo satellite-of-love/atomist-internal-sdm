@@ -8,7 +8,7 @@
             "env": [
               {
                 "name": "ATOMIST_DEPLOYMENT_NAME",
-                "value": "atomist-sdm"
+                "value": "clojure-sdm"
               },
               {
                 "name": "ATOMIST_DEPLOYMENT_NAMESPACE",
@@ -47,7 +47,7 @@
                 "name": "ATOMIST_CONFIG",
                 "valueFrom": {
                   "secretKeyRef": {
-                    "name": "atm-sdm",
+                    "name": "clojure-sdm",
                     "key": "config"
                   }
                 }

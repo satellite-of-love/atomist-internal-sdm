@@ -74,11 +74,11 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         //     .itMeans("No material change")
         //     .setGoals(NoGoals),
 
-        whenPushSatisfies(IsLein, HasAtomistFile, HasAtomistDockerfile, ToDefaultBranch)
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile, ToDefaultBranch)
             .itMeans("Build a Clojure Service with Leiningen")
             .setGoals(LeinDockerGoals),
 
-        whenPushSatisfies(IsLein, HasAtomistFile, not(HasAtomistDockerfile), ToDefaultBranch)
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile), ToDefaultBranch)
             .itMeans("Build a Clojure Library with Leiningen")
             .setGoals(LeinBuildGoals),
 
