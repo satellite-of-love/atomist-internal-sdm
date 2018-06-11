@@ -15,16 +15,17 @@
  */
 
 import {
-    DoNotSetAnyGoals,
-    IsDeployEnabled,
     not,
+    PredicatePushTest,
+    predicatePushTest,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
     ToDefaultBranch,
     whenPushSatisfies,
-    PredicatePushTest,
-    predicatePushTest,
 } from "@atomist/sdm";
+import {
+    TagGoal,
+} from "@atomist/sdm/goal/common/commonGoals";
 import {
     disableDeploy,
     enableDeploy,
@@ -32,27 +33,11 @@ import {
 import { executeTag } from "@atomist/sdm/internal/delivery/build/executeTag";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm/machine/machineFactory";
 import { HasTravisFile } from "@atomist/sdm/mapping/pushtest/ci/ciPushTests";
-import { HasDockerfile } from "@atomist/sdm/mapping/pushtest/docker/dockerPushTests";
 import { IsLein } from "@atomist/sdm/mapping/pushtest/jvm/jvmPushTests";
-import {
-    IsAtomistAutomationClient,
-    IsNode,
-} from "@atomist/sdm/mapping/pushtest/node/nodePushTests";
-import {
-    IsSimplifiedDeployment,
-    IsTeam,
-} from "../support/isSimplifiedDeployment";
-import {
-    NoGoals,
-    TagGoal,
-} from "@atomist/sdm/goal/common/commonGoals";
-import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureRepo";
-import { MaterialChangeToNodeRepo } from "../support/materialChangeToNodeRepo";
 import { LeinSupport } from "./leinSupport";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
-import {LeinDockerGoals,LeinBuildGoals} from "./goals"
+import {LeinBuildGoals, LeinDockerGoals} from "./goals";
 
 export const HasAtomistFile: PredicatePushTest = predicatePushTest(
     "Has Atomist file",
@@ -67,7 +52,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         name: "Atomist Software Delivery Machine",
         configuration,
     },
-    
+
         // Clojure
 
         // whenPushSatisfies(IsLein, not(HasTravisFile), not(MaterialChangeToClojureRepo))

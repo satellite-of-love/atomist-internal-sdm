@@ -31,6 +31,7 @@ import {
     RunWithLogContext,
 } from "@atomist/sdm";
 import * as build from "@atomist/sdm/dsl/buildDsl";
+import { DockerBuildGoal, VersionGoal } from "@atomist/sdm/goal/common/commonGoals";
 import { branchFromCommit } from "@atomist/sdm/internal/delivery/build/executeBuild";
 import {
     executeVersioner,
@@ -49,11 +50,10 @@ import {
 } from "@atomist/sdm/util/misc/spawned";
 import { SpawnOptions } from "child_process";
 import * as df from "dateformat";
+import * as fs from "fs";
 import * as _ from "lodash";
 import * as path from "path";
-import { DockerBuildGoal, VersionGoal } from "@atomist/sdm/goal/common/commonGoals";
 import * as util from "util";
-import * as fs from "fs";
 
 export const LeinSupport: ExtensionPack = {
     name: "Leiningen Support",
