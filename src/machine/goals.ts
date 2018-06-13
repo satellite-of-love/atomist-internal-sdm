@@ -17,22 +17,20 @@
 // GOAL Definition
 
 import {
+    AutofixGoal,
+    BuildGoal,
     Goal,
     Goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
     ProductionEnvironment,
-    StagingEnvironment,
-    BuildGoal,
     ReviewGoal,
-    AutofixGoal,
 } from "@atomist/sdm";
 import {
     DockerBuildGoal,
     TagGoal,
     VersionGoal,
 } from "@atomist/sdm/goal/common/commonGoals";
-
 
 // GOALSET Definition
 
