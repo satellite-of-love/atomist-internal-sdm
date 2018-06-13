@@ -55,7 +55,6 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as util from "util";
 
-
 export const LeinSupport: ExtensionPack = {
     name: "Leiningen Support",
     vendor: "Atomist",
