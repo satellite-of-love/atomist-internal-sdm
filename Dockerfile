@@ -50,7 +50,9 @@ ENTRYPOINT [ "dumb-init", "node", "--trace-warnings", "--expose_gc", "--optimize
 CMD [ "node_modules/@atomist/automation-client/start.client.js" ]
 
 # Install app dependencies
+RUN mkdir ./resources
 COPY package.json package-lock.json ./
+COPY ./resources/vault.txt ./resources
 RUN npm ci
 
 # Bundle app source
