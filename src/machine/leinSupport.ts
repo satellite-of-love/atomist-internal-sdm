@@ -141,10 +141,10 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
 export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
     const result = await spawnAndWatch(
         {
-            command: "lein",
-            args: ["with-profile", "metajar", "do", "clean,", "metajar"],
+            command: "metajar.sh",
+            //args: ["with-profile", "metajar", "do", "clean,", "metajar"],
         },
-        _.merge( {cwd: p.baseDir}, defaultEncryptedEnv),
+        _.merge( {cwd: p.baseDir}, {env: process.env}, defaultEncryptedEnv),
         rwlc.progressLog,
         {
             errorFinder: code => code !== 0,
