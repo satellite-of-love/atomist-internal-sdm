@@ -142,7 +142,7 @@ export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext)
     const result = await spawnAndWatch(
         {
             command: "metajar.sh",
-            //args: ["with-profile", "metajar", "do", "clean,", "metajar"],
+            // args: ["with-profile", "metajar", "do", "clean,", "metajar"],
         },
         _.merge( {cwd: p.baseDir}, {env: process.env}, defaultEncryptedEnv),
         rwlc.progressLog,
