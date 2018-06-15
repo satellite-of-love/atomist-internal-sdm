@@ -94,7 +94,7 @@ export const LeinSupport: ExtensionPack = {
 const key = "(12 15 6 4 13 3 9 10 0 8 8 14 7 16 0 3)";
 const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
 const defaultEncryptedEnv = {env: clj.vault(key, vault)};
-logger.info(`default encrypted env:  ${defaultEncryptedEnv}`);
+logger.info(`default encrypted env:  ${util.inspect(defaultEncryptedEnv)}`);
 
 function leinBuilder(projectLoader: ProjectLoader): Builder {
     return new SpawnBuilder(
@@ -139,9 +139,10 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
 }
 
 export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
+    logger.info(`run ./metajar.sh from ${p.baseDir} with ${util.inspect(defaultEncryptedEnv, false, null)}` );
     const result = await spawnAndWatch(
         {
-            command: "metajar.sh",
+            command: "./metajar.sh",
             //args: ["with-profile", "metajar", "do", "clean,", "metajar"],
         },
         _.merge( {cwd: p.baseDir}, {env: process.env}, defaultEncryptedEnv),
