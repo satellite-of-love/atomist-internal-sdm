@@ -56,13 +56,22 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as util from "util";
 
+import * as executeBuild from "@atomist/sdm/internal/delivery/build/executeBuild";
+import * as projectVersioner from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
+
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
+
     const projectclj = path.join(p.baseDir, "project.clj");
-    logger.info(`Docker Image name is generated from ${projectclj} name and version ${clj.getName(projectclj)}`);
+    const commit = status.commit;
+    const newversion = await projectVersioner.readSdmVersion(
+        commit.repo.owner, commit.repo.name, commit.repo.org.provider.providerId, commit.sha,
+        executeBuild.branchFromCommit(commit),
+        ctx);
+    logger.info(`Docker Image name is generated from ${projectclj} name and version ${clj.getName(projectclj)} ${newversion}`);
     return {name: clj.getName(projectclj),
             registry: options.registry,
-            version: clj.getVersion(projectclj)};
+            version: newversion};
 };
 
 export const LeinSupport: ExtensionPack = {
