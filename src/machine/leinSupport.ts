@@ -15,7 +15,7 @@
  */
 
 import {
-    logger, HandlerContext,
+    HandlerContext, logger,
 } from "@atomist/automation-client";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
@@ -41,10 +41,9 @@ import {
 import { SpawnBuilder } from "@atomist/sdm/internal/delivery/build/local/SpawnBuilder";
 import { IsLein } from "@atomist/sdm/mapping/pushtest/jvm/jvmPushTests";
 import {
-    DefaultDockerImageNameCreator,
+    DockerImageNameCreator,
     DockerOptions,
     executeDockerBuild,
-    DockerImageNameCreator,
 } from "@atomist/sdm/pack/docker/executeDockerBuild";
 import {
     asSpawnCommand,
@@ -57,9 +56,10 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as util from "util";
 
-const imageNamer: DockerImageNameCreator = async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
+const imageNamer: DockerImageNameCreator =
+    async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
     const projectclj = path.join(p.baseDir, "project.clj");
-    logger.info(`Docker Image name is generated from ${projectclj} name and version ${clj.getName(projectclj)}`)
+    logger.info(`Docker Image name is generated from ${projectclj} name and version ${clj.getName(projectclj)}`);
     return {name: clj.getName(projectclj),
             registry: options.registry,
             version: clj.getVersion(projectclj)};
