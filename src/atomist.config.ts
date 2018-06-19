@@ -41,4 +41,9 @@ export const configuration: Configuration = {
         configureRaven,
         configureSdm(machine, machineOptions),
     ],
+    sdm: {
+        build: {
+            tag: false,
+        },
+    },
 };

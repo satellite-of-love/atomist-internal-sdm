@@ -35,7 +35,7 @@ import { executeTag } from "@atomist/sdm/internal/delivery/build/executeTag";
 import { summarizeGoalsInGitHubStatus } from "@atomist/sdm/internal/delivery/goals/support/githubStatusSummarySupport";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm/machine/machineFactory";
 import { HasTravisFile } from "@atomist/sdm/mapping/pushtest/ci/ciPushTests";
-import { IsLein } from "@atomist/sdm/mapping/pushtest/jvm/jvmPushTests";
+import { IsLein } from "@atomist/sdm/pack/clojure/pushTests";
 import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
 import { LeinSupport } from "./leinSupport";
 

@@ -39,7 +39,7 @@ import {
     ProjectVersioner,
 } from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
 import { SpawnBuilder } from "@atomist/sdm/internal/delivery/build/local/SpawnBuilder";
-import { IsLein } from "@atomist/sdm/mapping/pushtest/jvm/jvmPushTests";
+import { IsLein } from "@atomist/sdm/pack/clojure/pushTests";
 import {
     DockerImageNameCreator,
     DockerOptions,
