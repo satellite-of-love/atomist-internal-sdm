@@ -62,17 +62,19 @@ import * as projectVersioner from "@atomist/sdm/internal/delivery/build/local/pr
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
 
-    const projectclj = path.join(p.baseDir, "project.clj");
-    const commit = status.commit;
-    const newversion = await projectVersioner.readSdmVersion(
-        commit.repo.owner, commit.repo.name, commit.repo.org.provider.providerId, commit.sha,
-        executeBuild.branchFromCommit(commit),
-        ctx);
-    logger.info(`Docker Image name is generated from ${projectclj} name and version ${clj.getName(projectclj)} ${newversion}`);
-    return {name: clj.getName(projectclj),
+        const projectclj = path.join(p.baseDir, "project.clj");
+        const commit = status.commit;
+        const newversion = await projectVersioner.readSdmVersion(
+            commit.repo.owner, commit.repo.name, commit.repo.org.provider.providerId, commit.sha,
+            executeBuild.branchFromCommit(commit),
+            ctx);
+        logger.info(`Docker Image name is generated from ${projectclj} name and version ${clj.getName(projectclj)} ${newversion}`);
+        return {
+            name: clj.getName(projectclj),
             registry: options.registry,
-            version: newversion};
-};
+            version: newversion,
+        };
+    };
 
 export const LeinSupport: ExtensionPack = {
     name: "Leiningen Support",
@@ -87,8 +89,8 @@ export const LeinSupport: ExtensionPack = {
         );
 
         sdm.addGoalImplementation("leinVersioner", VersionGoal,
-                executeVersioner(sdm.configuration.sdm.projectLoader, LeinProjectVersioner), { pushTest: IsLein })
-           .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
+            executeVersioner(sdm.configuration.sdm.projectLoader, LeinProjectVersioner), { pushTest: IsLein })
+            .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
                 executeDockerBuild(
                     sdm.configuration.sdm.projectLoader,
                     imageNamer,
@@ -97,7 +99,7 @@ export const LeinSupport: ExtensionPack = {
                         ...sdm.configuration.sdm.docker.jfrog as DockerOptions,
                         dockerfileFinder: async () => "docker/Dockerfile",
                     }), { pushTest: allSatisfied(IsLein, hasFile("docker/Dockerfile")) })
-           .addAutofixes(
+            .addAutofixes(
                 editorAutofixRegistration(
                     {
                         name: "cljformat",
@@ -112,7 +114,7 @@ export const LeinSupport: ExtensionPack = {
 
 const key = "(12 15 6 4 13 3 9 10 0 8 8 14 7 16 0 3)";
 const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
-const defaultEncryptedEnv = {env: clj.vault(key, vault)};
+const defaultEncryptedEnv = { env: clj.vault(key, vault) };
 logger.info(`default encrypted env:  ${util.inspect(defaultEncryptedEnv)}`);
 
 function leinBuilder(projectLoader: ProjectLoader): Builder {
@@ -121,7 +123,7 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
             projectLoader,
             options: {
                 name: "atomist.sh",
-                commands: [asSpawnCommand("./atomist.sh", {env: {}})],
+                commands: [asSpawnCommand("./atomist.sh", { env: {} })],
                 errorFinder: (code, signal, l) => {
                     return code !== 0;
                 },
@@ -134,7 +136,7 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
                 },
                 enrich: async (options: SpawnOptions, p: GitProject): Promise<SpawnOptions> => {
                     logger.info(`run build enrichment on SpawnOptions`);
-                    const encryptedEnv = {env: clj.vault(key, `${p.baseDir}/vault.txt`)};
+                    const encryptedEnv = { env: clj.vault(key, `${p.baseDir}/vault.txt`) };
                     const enriched = _.merge(options, defaultEncryptedEnv, encryptedEnv) as SpawnOptions;
                     logger.info(`enriched: ${util.inspect(encryptedEnv, false, null)}`);
                     return enriched;
@@ -145,7 +147,7 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
                     return {
                         name: clj.getName(`${p.baseDir}/${projectClj.path}`),
                         version: clj.getVersion(`${p.baseDir}/${projectClj.path}`),
-                        id: new GitHubRepoRef( "owner", "repo"),
+                        id: new GitHubRepoRef("owner", "repo"),
                     };
                 },
                 options: {
@@ -158,13 +160,13 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
 }
 
 export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
-    logger.info(`run ./metajar.sh from ${p.baseDir} with ${util.inspect(defaultEncryptedEnv, false, null)}` );
+    logger.info(`run ./metajar.sh from ${p.baseDir} with ${util.inspect(defaultEncryptedEnv, false, null)}`);
     const result = await spawnAndWatch(
         {
             command: "./metajar.sh",
             // args: ["with-profile", "metajar", "do", "clean,", "metajar"],
         },
-        _.merge( {cwd: p.baseDir}, {env: process.env}, defaultEncryptedEnv),
+        _.merge({ cwd: p.baseDir }, { env: process.env }, defaultEncryptedEnv),
         rwlc.progressLog,
         {
             errorFinder: code => code !== 0,
@@ -174,7 +176,10 @@ export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext)
 
 export const LeinProjectVersioner: ProjectVersioner = async (status, p) => {
     const file = path.join(p.baseDir, "project.clj");
-    const projectVersion = clj.getVersion(file);
+    let projectVersion = clj.getVersion(file);
+    if (projectVersion.endsWith("-SNAPSHOT")) {
+        projectVersion = projectVersion.replace("-SNAPSHOT", "");
+    }
     const branch = branchFromCommit(status.commit);
     const branchSuffix = branch !== status.commit.repo.defaultBranch ? `${branch}.` : "";
     const version = `${projectVersion}-${branchSuffix}${df(new Date(), "yyyymmddHHMMss")}`;
