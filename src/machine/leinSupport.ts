@@ -68,9 +68,10 @@ const imageNamer: DockerImageNameCreator =
             commit.repo.owner, commit.repo.name, commit.repo.org.provider.providerId, commit.sha,
             executeBuild.branchFromCommit(commit),
             ctx);
+        const projectName = _.last(clj.getName(projectclj).split("/"));
         logger.info(`Docker Image name is generated from ${projectclj} name and version ${clj.getName(projectclj)} ${newversion}`);
         return {
-            name: clj.getName(projectclj),
+            name: projectName,
             registry: options.registry,
             version: newversion,
         };
