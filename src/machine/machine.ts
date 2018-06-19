@@ -23,6 +23,7 @@ import {
     ToDefaultBranch,
     whenPushSatisfies,
 } from "@atomist/sdm";
+import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
 import {
     TagGoal,
 } from "@atomist/sdm/goal/common/commonGoals";
@@ -31,13 +32,12 @@ import {
     enableDeploy,
 } from "@atomist/sdm/handlers/commands/SetDeployEnablement";
 import { executeTag } from "@atomist/sdm/internal/delivery/build/executeTag";
+import { summarizeGoalsInGitHubStatus } from "@atomist/sdm/internal/delivery/goals/support/githubStatusSummarySupport";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm/machine/machineFactory";
 import { HasTravisFile } from "@atomist/sdm/mapping/pushtest/ci/ciPushTests";
 import { IsLein } from "@atomist/sdm/mapping/pushtest/jvm/jvmPushTests";
-import { LeinSupport } from "./leinSupport";
-
-import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
 import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
+import { LeinSupport } from "./leinSupport";
 
 export const HasAtomistFile: PredicatePushTest = predicatePushTest(
     "Has Atomist file",
@@ -84,6 +84,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addExtensionPacks(
         LeinSupport,
     );
+
+    summarizeGoalsInGitHubStatus(sdm);
 
     return sdm;
 }
