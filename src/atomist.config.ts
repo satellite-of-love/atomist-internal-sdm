@@ -44,6 +44,6 @@ export const configuration: Configuration = {
     sdm: {
         build: {
             tag: false,
-        }
-    }
+        },
+    },
 };
