@@ -84,6 +84,6 @@ export const LeinDockerGoals = new Goals(
 
 export const LeinDefaultBranchDockerGoals = new Goals(
     "Lein Docker Build",
-    ...LeinDefaultBranchBuildGoals.goals,
+    ...LeinDockerGoals.goals,
     TagGoal,
 );
