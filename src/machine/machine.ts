@@ -37,7 +37,7 @@ import { IsLein } from "@atomist/sdm/mapping/pushtest/jvm/jvmPushTests";
 import { LeinSupport } from "./leinSupport";
 
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
-import {LeinBuildGoals, LeinDockerGoals} from "./goals";
+import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
 
 export const HasAtomistFile: PredicatePushTest = predicatePushTest(
     "Has Atomist file",
@@ -61,12 +61,19 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
         whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile, ToDefaultBranch)
             .itMeans("Build a Clojure Service with Leiningen")
+            .setGoals(LeinDefaultBranchDockerGoals),
+
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile)
+            .itMeans("Build a Clojure Service with Leiningen")
             .setGoals(LeinDockerGoals),
 
         whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile), ToDefaultBranch)
             .itMeans("Build a Clojure Library with Leiningen")
-            .setGoals(LeinBuildGoals),
+            .setGoals(LeinDefaultBranchBuildGoals),
 
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile))
+            .itMeans("Build a Clojure Library with Leiningen")
+            .setGoals(LeinBuildGoals),
     );
 
     sdm.addSupportingCommands(enableDeploy, disableDeploy);

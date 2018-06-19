@@ -67,12 +67,23 @@ export const LeinBuildGoals = new Goals(
     "Lein Build",
     ...CheckGoals.goals,
     BuildGoal,
+);
+
+export const LeinDefaultBranchBuildGoals = new Goals(
+    "Lein Build",
+    ...CheckGoals.goals,
+    BuildGoal,
     TagGoal,
-    // new GoalWithPrecondition(LibraryPublished.definition, TagGoal),
 );
 
 export const LeinDockerGoals = new Goals(
     "Lein Docker Build",
     ...LeinBuildGoals.goals,
     DockerBuildGoal,
+);
+
+export const LeinDefaultBranchDockerGoals = new Goals(
+    "Lein Docker Build",
+    ...LeinDefaultBranchBuildGoals.goals,
+    TagGoal,
 );
