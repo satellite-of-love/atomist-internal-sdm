@@ -1,3 +1,4 @@
+import { TagGoal } from "@atomist/sdm/goal/common/commonGoals";
 /*
  * Copyright © 2018 Atomist, Inc.
  *
@@ -50,7 +51,12 @@ export const CheckGoals = new Goals(
     "Check",
     VersionGoal,
     ReviewGoal,
+);
+
+export const DefaultBranchGoals = new Goals(
+    "Default Branch",
     AutofixGoal,
+    TagGoal,
 );
 
 // Build including docker build
@@ -71,9 +77,8 @@ export const LeinBuildGoals = new Goals(
 
 export const LeinDefaultBranchBuildGoals = new Goals(
     "Lein Build",
-    ...CheckGoals.goals,
-    BuildGoal,
-    TagGoal,
+    ...LeinBuildGoals.goals,
+    ...DefaultBranchGoals.goals,
 );
 
 export const LeinDockerGoals = new Goals(
@@ -85,5 +90,5 @@ export const LeinDockerGoals = new Goals(
 export const LeinDefaultBranchDockerGoals = new Goals(
     "Lein Docker Build",
     ...LeinDockerGoals.goals,
-    TagGoal,
+    ...DefaultBranchGoals.goals,
 );
