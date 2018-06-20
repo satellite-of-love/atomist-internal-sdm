@@ -1,4 +1,3 @@
-import { TagGoal } from "@atomist/sdm/goal/common/commonGoals";
 /*
  * Copyright © 2018 Atomist, Inc.
  *
@@ -77,7 +76,7 @@ export const LeinBuildGoals = new Goals(
 
 export const LeinDefaultBranchBuildGoals = new Goals(
     "Lein Build",
-    ...LeinBuildGoals.goals,
+    ...CheckGoals.goals,
     ...DefaultBranchGoals.goals,
 );
 
