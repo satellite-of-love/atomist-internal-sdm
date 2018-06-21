@@ -71,7 +71,7 @@ export const LibraryPublished = new Goal({
 export const LeinBuildGoals = new Goals(
     "Lein Build",
     ...CheckGoals.goals,
-    BuildGoal,
+    new GoalWithPrecondition(BuildGoal.definition, ReviewGoal),
 );
 
 export const LeinDefaultBranchBuildGoals = new Goals(
