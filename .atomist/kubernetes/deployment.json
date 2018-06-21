@@ -100,6 +100,10 @@
                 "name": "automation",
                 "mountPath": "/opt/atm",
                 "readOnly": true
+              },
+              {
+                "name": "data",
+                "mountPath": "/opt/data"
               }
             ]
           }
@@ -115,6 +119,13 @@
             "name": "automation",
             "secret": {
               "secretName": "automation"
+            }
+          },
+          {
+            "name": "data",
+            "hostPath": {
+              "path": "/mnt/disks/ssd0/data/clojure-sdm",
+              "type": "DirectoryOrCreate"
             }
           }
         ],
