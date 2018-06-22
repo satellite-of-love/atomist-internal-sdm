@@ -31,24 +31,24 @@ import {
     RunWithLogContext,
     StatusForExecuteGoal,
 } from "@atomist/sdm";
-import * as build from "@atomist/sdm/dsl/buildDsl";
-import { DockerBuildGoal, VersionGoal } from "@atomist/sdm/goal/common/commonGoals";
-import { branchFromCommit } from "@atomist/sdm/internal/delivery/build/executeBuild";
+import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
+import { DockerBuildGoal, VersionGoal } from "@atomist/sdm-core";
+import { branchFromCommit } from "@atomist/sdm/api-helper/goal/executeBuild";
 import {
     executeVersioner,
     ProjectVersioner,
-} from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
-import { SpawnBuilder } from "@atomist/sdm/internal/delivery/build/local/SpawnBuilder";
-import { IsLein } from "@atomist/sdm/pack/clojure/pushTests";
+} from "@atomist/sdm-core";
+import { SpawnBuilder } from "@atomist/sdm-core";
+import { IsLein } from "@atomist/sdm-core";
 import {
     DockerImageNameCreator,
     DockerOptions,
     executeDockerBuild,
-} from "@atomist/sdm/pack/docker/executeDockerBuild";
+} from "@atomist/sdm-core";
 import {
     asSpawnCommand,
     spawnAndWatch,
-} from "@atomist/sdm/util/misc/spawned";
+} from "@atomist/sdm/api-helper/misc/spawned";
 import { SpawnOptions } from "child_process";
 import * as df from "dateformat";
 import * as fs from "fs";

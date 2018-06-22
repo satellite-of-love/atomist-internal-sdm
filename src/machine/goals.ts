@@ -30,7 +30,7 @@ import {
     DockerBuildGoal,
     TagGoal,
     VersionGoal,
-} from "@atomist/sdm/goal/common/commonGoals";
+} from "@atomist/sdm-core";
 
 // GOALSET Definition
 
