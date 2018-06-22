@@ -31,20 +31,20 @@ import {
     RunWithLogContext,
     StatusForExecuteGoal,
 } from "@atomist/sdm";
-import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
-import { DockerBuildGoal, VersionGoal } from "@atomist/sdm-core";
-import { branchFromCommit } from "@atomist/sdm/api-helper/goal/executeBuild";
-import {
-    executeVersioner,
-    ProjectVersioner,
-} from "@atomist/sdm-core";
-import { SpawnBuilder } from "@atomist/sdm-core";
-import { IsLein } from "@atomist/sdm-core";
 import {
     DockerImageNameCreator,
     DockerOptions,
     executeDockerBuild,
 } from "@atomist/sdm-core";
+import { DockerBuildGoal, VersionGoal } from "@atomist/sdm-core";
+import { IsLein } from "@atomist/sdm-core";
+import {
+    executeVersioner,
+    ProjectVersioner,
+} from "@atomist/sdm-core";
+import { SpawnBuilder } from "@atomist/sdm-core";
+import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
+import { branchFromCommit } from "@atomist/sdm/api-helper/goal/executeBuild";
 import {
     asSpawnCommand,
     spawnAndWatch,

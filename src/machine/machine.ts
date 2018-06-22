@@ -23,7 +23,7 @@ import {
     ToDefaultBranch,
     whenPushSatisfies,
 } from "@atomist/sdm";
-import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
+import { summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
 import {
     TagGoal,
 } from "@atomist/sdm-core";
@@ -32,10 +32,10 @@ import {
     enableDeploy,
 } from "@atomist/sdm-core";
 import { executeTag } from "@atomist/sdm-core";
-import { summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
+import { IsLein } from "@atomist/sdm-core";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
-import { IsLein } from "@atomist/sdm-core";
+import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
 import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
 import { LeinSupport } from "./leinSupport";
 
