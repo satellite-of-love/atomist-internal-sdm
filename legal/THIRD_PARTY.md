@@ -9,7 +9,7 @@ This page details all runtime OSS dependencies of `@atomist/clojure-sdm`.
 | License | Count |
 |---------|-------|
 |AFLv2.1|1|
-|Apache-2.0|31|
+|Apache-2.0|32|
 |Artistic-2.0|4|
 |BSD-2-Clause|22|
 |BSD-3-Clause|29|
@@ -39,7 +39,8 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 |`@atomist/automation-client-ext-logzio`|`0.1.0-20180613131229`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-logzio](https://github.com/atomist/automation-client-ext-logzio)|
 |`@atomist/automation-client-ext-raven`|`0.1.0-20180613131132`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-raven](https://github.com/atomist/automation-client-ext-raven)|
 |`@atomist/clojure-sdm`|`0.1.0`|Atomist, Inc.|[https://github.com/atomist/clojure-sdm](https://github.com/atomist/clojure-sdm)|
-|`@atomist/sdm`|`0.2.4-20180621002745`|Atomist, Inc.|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
+|`@atomist/sdm-core`|`0.3.1-20180622172537`|Atomist, Inc.|[https://github.com/atomist/sdm-core](https://github.com/atomist/sdm-core)|
+|`@atomist/sdm`|`0.3.0-nortissej.break-out-api.20180622000216`|Atomist, Inc.|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
 |`@atomist/slack-messages`|`0.12.1`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
 |`JSONStream`|`1.3.2`|Dominic Tarr|[https://github.com/dominictarr/JSONStream](https://github.com/dominictarr/JSONStream)|
 |`ascli`|`1.0.1`|Daniel Wirtz|[https://github.com/dcodeIO/ascli](https://github.com/dcodeIO/ascli)|
