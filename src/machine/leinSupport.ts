@@ -116,7 +116,6 @@ export const LeinSupport: ExtensionPack = {
 const key = process.env['TEAM_CRED'];
 const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
 const defaultEncryptedEnv = { env: clj.vault(key, vault) };
-logger.info(`default encrypted env:  ${util.inspect(defaultEncryptedEnv)}`);
 
 function leinBuilder(projectLoader: ProjectLoader): Builder {
     return new SpawnBuilder(
@@ -139,7 +138,6 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
                     logger.info(`run build enrichment on SpawnOptions`);
                     const encryptedEnv = { env: clj.vault(key, `${p.baseDir}/vault.txt`) };
                     const enriched = _.merge(options, defaultEncryptedEnv, encryptedEnv) as SpawnOptions;
-                    logger.info(`enriched: ${util.inspect(encryptedEnv, false, null)}`);
                     return enriched;
                 },
                 projectToAppInfo: async (p: GitProject) => {
