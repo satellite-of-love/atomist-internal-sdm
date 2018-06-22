@@ -53,6 +53,15 @@
                 }
               },
               {
+                "name": "TEAM_CRED",
+                "valueFrom": {
+                  "secretKeyRef": {
+                    "name": "clojure-vault",
+                    "key": "key"
+                  }
+                }
+              },
+              {
                 "name": "ATOMIST_CONFIG_PATH",
                 "value": "/opt/atm/atomist-config.json"
               }
