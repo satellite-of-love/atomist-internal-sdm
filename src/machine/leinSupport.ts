@@ -113,7 +113,7 @@ export const LeinSupport: ExtensionPack = {
     },
 };
 
-const key = process.env['TEAM_CRED'];
+const key = process.env.TEAM_CRED;
 const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
 const defaultEncryptedEnv = { env: clj.vault(key, vault) };
 logger.info(`default encrypted env:  ${util.inspect(defaultEncryptedEnv)}`);
