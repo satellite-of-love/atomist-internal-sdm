@@ -183,7 +183,7 @@ export const LeinProjectVersioner: ProjectVersioner = async (status, p) => {
     }
     const branch = branchFromCommit(status.commit);
     const branchSuffix = branch !== status.commit.repo.defaultBranch ? `${branch}.` : "";
-    const version = `${projectVersion}-${branchSuffix}${df(new Date(), "yyyymmdd'T'HHMMss'Z'")}`;
+    const version = `${projectVersion}-${branchSuffix}${df(new Date(), "yyyymmddHHMMss")}`;
 
     await clj.setVersion(file, version);
 
