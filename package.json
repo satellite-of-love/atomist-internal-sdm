@@ -23,7 +23,7 @@
     "@atomist/automation-client": "0.17.4-20180619214533",
     "@atomist/automation-client-ext-raven": "0.1.0-20180613131132",
     "@atomist/automation-client-ext-logzio": "0.1.0-20180613131229",
-    "@atomist/clj-editors": "0.1.0",
+    "@atomist/clj-editors": "0.1.2",
     "@atomist/sdm": "0.2.4-20180621002745",
     "@atomist/slack-messages": "^0.12.1",
     "fs-extra": "^6.0.0",
