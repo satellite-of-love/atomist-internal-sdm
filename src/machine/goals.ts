@@ -45,6 +45,41 @@ export const PublishGoal = new GoalWithPrecondition({
     isolated: true,
 }, BuildGoal);
 
+export const UpdateStagingK8SpecsGoal = new GoalWithPrecondition({
+    uniqueName: "UpdateStagingK8Specs",
+    environment: IndependentOfEnvironment,
+    orderedName: "5-update-staging-k8-specs",
+    displayName: "update staging k8s specs",
+    workingDescription: "Updating staging specs...",
+    completedDescription: "Staging K8 specs updated",
+    failedDescription: "Staging K8 spec update failed",
+    isolated: true,
+}, TagGoal);
+
+export const IntegrationTestGoal = new GoalWithPrecondition({
+    uniqueName: "IntegrationTest",
+    environment: IndependentOfEnvironment,
+    orderedName: "6-integration-test",
+    displayName: "integration test",
+    workingDescription: "Running integration tests...",
+    completedDescription: "Integration tests passed",
+    failedDescription: "Integration tests failed",
+    isolated: true,
+    waitingForApprovalDescription: "Promote to Prod",
+    approvalRequired: true,
+}, UpdateStagingK8SpecsGoal);
+
+export const UpdateProdK8SpecsGoal = new GoalWithPrecondition({
+    uniqueName: "UpdateProdK8Specs",
+    environment: IndependentOfEnvironment,
+    orderedName: "7-update-prod-k8-specs",
+    displayName: "update prod k8s specs",
+    workingDescription: "Updating prod specs...",
+    completedDescription: "Prod K8 specs updated",
+    failedDescription: "Prod K8 spec update failed",
+    isolated: true,
+}, IntegrationTestGoal);
+
 // Just running review and autofix
 export const CheckGoals = new Goals(
     "Check",
@@ -56,6 +91,9 @@ export const DefaultBranchGoals = new Goals(
     "Default Branch",
     AutofixGoal,
     TagGoal,
+    UpdateStagingK8SpecsGoal,
+    UpdateProdK8SpecsGoal,
+    IntegrationTestGoal,
 );
 
 // Build including docker build
