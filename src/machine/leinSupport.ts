@@ -15,7 +15,7 @@
  */
 
 import {
-    HandlerContext, logger, SuccessPromise,
+    HandlerContext, HandlerResult, logger, SuccessPromise,
 } from "@atomist/automation-client";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
@@ -130,6 +130,47 @@ export const LeinSupport: ExtensionPack = {
     },
 };
 
+/**
+ * Update all Deployments that contain the mapping
+ * @param owner
+ * @param repo
+ * @param version
+ * @param project
+ */
+async function updateSpec(owner: string, repo: string, version: string, project: GitProject): Promise<HandlerResult> {
+    const files = await toPromise(project.streamFiles("**/*.json"));
+    files.forEach(async f => {
+        const spec = JSON.parse(await f.getContent());
+        if (spec.kind === "Deployment") {
+            const template = spec.spec.template;
+            const updater = template.metadata.annotations["atomist.updater"] as string;
+            if (updater) {
+                const mapping = updater.replace("{", "").replace("}", "").split(" ");
+                let dirty = false;
+                if (`${owner}/${repo}` === mapping[1]) {
+                    spec.spec.template.spec.containers = _.reduce(
+                        spec.spec.template.spec.containers, (acc, container) => {
+                            const repoWithName = container.image.split(":")[0];
+                            if (repoWithName === mapping[0]) {
+                                const nv = container.image.split("/")[1].split(":");
+                                if (nv[1] !== version) {
+                                    dirty = true;
+                                    container.image = `${repoWithName}:${version}`;
+                                }
+                            } else {
+                                acc.push(container);
+                            }
+                            return acc;
+                        }, []);
+                }
+                if (dirty) {
+                    await f.setContent(JSON.stringify(spec));
+                }
+            }
+        }
+    });
+    return SuccessPromise;
+}
 function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): ExecuteGoalWithLog {
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
         const { status, credentials, id, context } = rwlc;
@@ -140,11 +181,7 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
             readOnly: false,
 
         },
-            async (g: GitProject) => {
-                const files = await toPromise(g.streamFiles());
-                files.forEach(f => logger.error(`Found file: ${f.path}`));
-                return SuccessPromise;
-            },
+            async (g: GitProject) => updateSpec(id.owner, id.repo, version, g),
         );
     };
 }
