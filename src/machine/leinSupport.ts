@@ -62,9 +62,9 @@ import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 import { ExecuteGoalWithLog } from "@atomist/sdm";
+import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
 import { IntegrationTestGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 import { rwlcVersion } from "./release";
-
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
 
@@ -135,8 +135,11 @@ export const LeinSupport: ExtensionPack = {
 @Parameters()
 export class K8SpecUpdaterParameters {
 
-    @Parameter({ required: false, pattern: /.*/ })
-    public readonly customAffirmation: string;
+    @Parameter({ required: true, pattern: /prod|staging/, validInput: "prod | staging" })
+    public readonly env: string;
+
+    @Parameter({ required: true, pattern: /.*/ })
+    public readonly version: string;
 }
 
 /**
@@ -144,22 +147,26 @@ export class K8SpecUpdaterParameters {
  * @type {HandleCommand<EditOneOrAllParameters>}
  */
 export const UpdateK8SpecEditor: EditorRegistration = {
-    createEditor: () => async (project: Project, ctx: HandlerContext, params: any): Promise<Project> => {
-        const loader = new CloningProjectLoader();
-        return sdm.projectLoader.doWithProject({
-            credentials,
-            id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", branch),
-            readOnly: false,
 
+    createEditor: () => async (project: Project, ctx: HandlerContext, params: any): Promise<Project> => {
+
+        const version = params.version;
+        const owner = project.id.owner;
+        const repo = project.id.repo;
+
+        return CloningProjectLoader.doWithProject({
+            credentials,
+            id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", params.env),
+            readOnly: false,
+            context: ctx,
         },
-            async (project: GitProject) => {
-                await updateK8Spec(project, rwlc.context, { owner: id.owner, repo: id.repo, version });
-                await project.commit(`Update ${id.owner}/${id.repo} to ${version}`);
-                await project.push();
-                return SuccessPromise;
+            async (prj: GitProject) => {
+                const result = await updateK8Spec(project, ctx, { owner, repo, version });
+                await prj.commit(`Update ${owner}/${repo} to ${version}`);
+                await prj.push();
+                return result;
             },
         );
-        return updateK8Spec(project, ctx, {});
     },
     name: "k8-spec-updater",
     paramsMaker: () => new K8SpecUpdaterParameters(),
@@ -226,7 +233,7 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
             credentials,
             id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", branch),
             readOnly: false,
-
+            context: rwlc.context,
         },
             async (project: GitProject) => {
                 await updateK8Spec(project, rwlc.context, { owner: id.owner, repo: id.repo, version });
