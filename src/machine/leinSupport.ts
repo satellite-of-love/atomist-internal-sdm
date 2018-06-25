@@ -57,7 +57,6 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as util from "util";
 
-import { SimpleRepoId } from "@atomist/automation-client/operations/common/RepoId";
 import { Project } from "@atomist/automation-client/project/Project";
 import { toPromise } from "@atomist/automation-client/project/util/projectUtils";
 import { ExecuteGoalWithLog } from "@atomist/sdm";
@@ -141,7 +140,7 @@ export const LeinSupport: ExtensionPack = {
 export async function updateK8Spec(owner: string, repo: string, version: string, project: Project): Promise<HandlerResult> {
     const files = await toPromise(project.streamFiles("**/*.json"));
 
-    await files.forEach(async f => {
+    files.forEach(async f => {
         logger.info("Processing file: " + f.path);
         const spec = JSON.parse(await f.getContent());
         let dirty = false;
@@ -182,7 +181,7 @@ export async function updateK8Spec(owner: string, repo: string, version: string,
 }
 function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): ExecuteGoalWithLog {
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
-        const { status, credentials, id, context } = rwlc;
+        const { credentials, id } = rwlc;
         const version = await rwlcVersion(rwlc);
         return sdm.projectLoader.doWithProject({
             credentials,

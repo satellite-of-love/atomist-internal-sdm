@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-import {
-    logger,
-} from "@atomist/automation-client";
 import { SimpleRepoId } from "@atomist/automation-client/operations/common/RepoId";
 import { InMemoryProject } from "@atomist/automation-client/project/mem/InMemoryProject";
 import * as fs from "fs";
