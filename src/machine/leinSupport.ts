@@ -172,7 +172,6 @@ export const UpdateK8SpecEditor: EditorRegistration = {
     },
     name: "k8-spec-updater",
     paramsMaker: () => new K8SpecUpdaterParameters(),
-    editMode: ap => ap.editMode,
     intent: "update spec",
 };
 
