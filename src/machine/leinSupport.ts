@@ -32,24 +32,24 @@ import {
     SoftwareDeliveryMachineOptions,
     StatusForExecuteGoal,
 } from "@atomist/sdm";
-import * as build from "@atomist/sdm/dsl/buildDsl";
-import { DockerBuildGoal, VersionGoal } from "@atomist/sdm/goal/common/commonGoals";
-import { branchFromCommit } from "@atomist/sdm/internal/delivery/build/executeBuild";
 import {
-    executeVersioner,
-    ProjectVersioner,
-} from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
-import { SpawnBuilder } from "@atomist/sdm/internal/delivery/build/local/SpawnBuilder";
-import { IsLein } from "@atomist/sdm/pack/clojure/pushTests";
-import {
-    DockerImageNameCreator,
+    DockerBuildGoal,
     DockerOptions,
     executeDockerBuild,
-} from "@atomist/sdm/pack/docker/executeDockerBuild";
+    executeVersioner,
+    readSdmVersion,
+    VersionGoal,
+} from "@atomist/sdm-core";
+import { ProjectVersioner } from "@atomist/sdm-core/internal/delivery/build/local/projectVersioner";
+import { SpawnBuilder } from "@atomist/sdm-core/internal/delivery/build/local/SpawnBuilder";
+import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
+import { DockerImageNameCreator } from "@atomist/sdm-core/pack/docker/executeDockerBuild";
+import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
+import { branchFromCommit } from "@atomist/sdm/api-helper/goal/executeBuild";
 import {
     asSpawnCommand,
     spawnAndWatch,
-} from "@atomist/sdm/util/misc/spawned";
+} from "@atomist/sdm/api-helper/misc/spawned";
 import { SpawnOptions } from "child_process";
 import * as df from "dateformat";
 import * as fs from "fs";
@@ -61,8 +61,6 @@ import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 import { ExecuteGoalWithLog } from "@atomist/sdm";
-import * as executeBuild from "@atomist/sdm/internal/delivery/build/executeBuild";
-import * as projectVersioner from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
 import { IntegrationTestGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 import { rwlcVersion } from "./release";
 
@@ -71,9 +69,9 @@ const imageNamer: DockerImageNameCreator =
 
         const projectclj = path.join(p.baseDir, "project.clj");
         const commit = status.commit;
-        const newversion = await projectVersioner.readSdmVersion(
+        const newversion = await readSdmVersion(
             commit.repo.owner, commit.repo.name, commit.repo.org.provider.providerId, commit.sha,
-            executeBuild.branchFromCommit(commit),
+            branchFromCommit(commit),
             ctx);
         const projectName = _.last(clj.getName(projectclj).split("/"));
         logger.info(`Docker Image name is generated from ${projectclj} name and version ${projectName} ${newversion}`);

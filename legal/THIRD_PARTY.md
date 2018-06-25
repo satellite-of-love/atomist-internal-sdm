@@ -9,7 +9,7 @@ This page details all runtime OSS dependencies of `@atomist/clojure-sdm`.
 | License | Count |
 |---------|-------|
 |AFLv2.1|1|
-|Apache-2.0|31|
+|Apache-2.0|32|
 |Artistic-2.0|4|
 |BSD-2-Clause|22|
 |BSD-3-Clause|29|
@@ -19,7 +19,7 @@ This page details all runtime OSS dependencies of `@atomist/clojure-sdm`.
 |Custom: https://github.com/douglascrockford/JSON-js|1|
 |Custom: https://github.com/rundis/rewrite-cljs|1|
 |GPL-3.0|4|
-|ISC|114|
+|ISC|113|
 |MIT|674|
 |Public Domain|1|
 |Unlicense|2|
@@ -39,7 +39,8 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 |`@atomist/automation-client-ext-logzio`|`0.1.0-20180613131229`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-logzio](https://github.com/atomist/automation-client-ext-logzio)|
 |`@atomist/automation-client-ext-raven`|`0.1.0-20180613131132`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-raven](https://github.com/atomist/automation-client-ext-raven)|
 |`@atomist/clojure-sdm`|`0.1.0`|Atomist, Inc.|[https://github.com/atomist/clojure-sdm](https://github.com/atomist/clojure-sdm)|
-|`@atomist/sdm`|`0.2.4-20180621002745`|Atomist, Inc.|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
+|`@atomist/sdm-core`|`0.3.1-20180625110814`|Atomist, Inc.|[https://github.com/atomist/sdm-core](https://github.com/atomist/sdm-core)|
+|`@atomist/sdm`|`0.3.0-20180625110209`|Atomist, Inc.|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
 |`@atomist/slack-messages`|`0.12.1`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
 |`JSONStream`|`1.3.2`|Dominic Tarr|[https://github.com/dominictarr/JSONStream](https://github.com/dominictarr/JSONStream)|
 |`ascli`|`1.0.1`|Daniel Wirtz|[https://github.com/dcodeIO/ascli](https://github.com/dcodeIO/ascli)|
@@ -187,7 +188,7 @@ GNU General Public License v3.0 only - [http://www.gnu.org/licenses/gpl-3.0-stan
 
 | Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|
-|`@atomist/automation-client`|`0.17.4-20180619214533`|Atomist, Inc.|[https://github.com/atomist/automation-client-ts](https://github.com/atomist/automation-client-ts)|
+|`@atomist/automation-client`|`0.17.4-20180621144910`|Atomist, Inc.|[https://github.com/atomist/automation-client-ts](https://github.com/atomist/automation-client-ts)|
 |`@atomist/microgrammar`|`0.7.0`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
 |`@atomist/microgrammar`|`0.7.0-20180528084001`|Atomist|[https://github.com/atomist/microgrammar](https://github.com/atomist/microgrammar)|
 |`@atomist/tree-path`|`0.1.9`|Atomist, Inc.|[https://github.com/atomist/tree-path-ts](https://github.com/atomist/tree-path-ts)|
@@ -197,7 +198,6 @@ ISC License - [https://www.isc.org/downloads/software-support-policy/isc-license
 
 | Name | Version | Publisher | Repository |
 |------|---------|-----------|------------|
-|`@jessitron/git-branch-to-npm-tag`|`1.0.1`|jessitron|[https://github.com/atm-bankomat/git-branch-to-npm-tag](https://github.com/atm-bankomat/git-branch-to-npm-tag)|
 |`abbrev`|`1.1.1`|Isaac Z. Schlueter|[https://github.com/isaacs/abbrev-js](https://github.com/isaacs/abbrev-js)|
 |`ansi-align`|`2.0.0`|nexdrew|[https://github.com/nexdrew/ansi-align](https://github.com/nexdrew/ansi-align)|
 |`aproba`|`1.2.0`|Rebecca Turner|[https://github.com/iarna/aproba](https://github.com/iarna/aproba)|
@@ -747,7 +747,7 @@ MIT License - [http://www.opensource.org/licenses/MIT](http://www.opensource.org
 |`node-fetch`|`2.1.2`|David Frank|[https://github.com/bitinn/node-fetch](https://github.com/bitinn/node-fetch)|
 |`node-gyp`|`3.6.2`|Nathan Rajlich|[https://github.com/nodejs/node-gyp](https://github.com/nodejs/node-gyp)|
 |`node-uuid`|`1.4.8`|Robert Kieffer|[https://github.com/broofa/node-uuid](https://github.com/broofa/node-uuid)|
-|`node-version`|`1.1.3`|Rodolphe Stoclin|[https://github.com/srod/node-version](https://github.com/srod/node-version)|
+|`node-version`|`1.2.0`|Rodolphe Stoclin|[https://github.com/srod/node-version](https://github.com/srod/node-version)|
 |`normalize-path`|`2.1.1`|Jon Schlinkert|[https://github.com/jonschlinkert/normalize-path](https://github.com/jonschlinkert/normalize-path)|
 |`normalize-url`|`2.0.1`|Sindre Sorhus|[https://github.com/sindresorhus/normalize-url](https://github.com/sindresorhus/normalize-url)|
 |`npm-run-path`|`2.0.2`|Sindre Sorhus|[https://github.com/sindresorhus/npm-run-path](https://github.com/sindresorhus/npm-run-path)|

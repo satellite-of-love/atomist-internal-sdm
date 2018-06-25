@@ -20,7 +20,7 @@ import { configureRaven } from "@atomist/automation-client-ext-raven";
 import {
     ConfigureOptions,
     configureSdm,
-} from "@atomist/sdm/internal/machine/configureSdm";
+} from "@atomist/sdm-core";
 import { machine } from "./machine/machine";
 
 const machineOptions: ConfigureOptions = {

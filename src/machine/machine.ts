@@ -23,19 +23,19 @@ import {
     ToDefaultBranch,
     whenPushSatisfies,
 } from "@atomist/sdm";
-import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
+import { summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
 import {
     TagGoal,
-} from "@atomist/sdm/goal/common/commonGoals";
+} from "@atomist/sdm-core";
 import {
     disableDeploy,
     enableDeploy,
-} from "@atomist/sdm/handlers/commands/SetDeployEnablement";
-import { executeTag } from "@atomist/sdm/internal/delivery/build/executeTag";
-import { summarizeGoalsInGitHubStatus } from "@atomist/sdm/internal/delivery/goals/support/githubStatusSummarySupport";
-import { createSoftwareDeliveryMachine } from "@atomist/sdm/machine/machineFactory";
-import { HasTravisFile } from "@atomist/sdm/mapping/pushtest/ci/ciPushTests";
-import { IsLein } from "@atomist/sdm/pack/clojure/pushTests";
+} from "@atomist/sdm-core";
+import { executeTag } from "@atomist/sdm-core";
+import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
+import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
+import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
+import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
 import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
 import { LeinSupport } from "./leinSupport";
 
