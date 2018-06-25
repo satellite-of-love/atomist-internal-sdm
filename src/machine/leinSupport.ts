@@ -32,17 +32,17 @@ import {
     StatusForExecuteGoal,
 } from "@atomist/sdm";
 import {
-    DockerImageNameCreator,
+    DockerBuildGoal,
     DockerOptions,
     executeDockerBuild,
-} from "@atomist/sdm-core";
-import { DockerBuildGoal, VersionGoal } from "@atomist/sdm-core";
-import { IsLein } from "@atomist/sdm-core";
-import {
     executeVersioner,
-    ProjectVersioner,
+    readSdmVersion,
+    VersionGoal,
 } from "@atomist/sdm-core";
-import { SpawnBuilder } from "@atomist/sdm-core";
+import { ProjectVersioner } from "@atomist/sdm-core/internal/delivery/build/local/projectVersioner";
+import { SpawnBuilder } from "@atomist/sdm-core/internal/delivery/build/local/SpawnBuilder";
+import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
+import { DockerImageNameCreator } from "@atomist/sdm-core/pack/docker/executeDockerBuild";
 import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
 import { branchFromCommit } from "@atomist/sdm/api-helper/goal/executeBuild";
 import {
@@ -56,17 +56,14 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as util from "util";
 
-import * as executeBuild from "@atomist/sdm/internal/delivery/build/executeBuild";
-import * as projectVersioner from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
-
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
 
         const projectclj = path.join(p.baseDir, "project.clj");
         const commit = status.commit;
-        const newversion = await projectVersioner.readSdmVersion(
+        const newversion = await readSdmVersion(
             commit.repo.owner, commit.repo.name, commit.repo.org.provider.providerId, commit.sha,
-            executeBuild.branchFromCommit(commit),
+            branchFromCommit(commit),
             ctx);
         const projectName = _.last(clj.getName(projectclj).split("/"));
         logger.info(`Docker Image name is generated from ${projectclj} name and version ${projectName} ${newversion}`);
