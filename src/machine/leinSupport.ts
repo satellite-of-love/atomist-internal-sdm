@@ -154,7 +154,6 @@ export const UpdateK8SpecEditor: EditorRegistration = {
         const version = params.version;
         const owner = project.id.owner;
         const repo = project.id.repo;
-
         const credentials = (params as EditorOrReviewerParameters).targets.credentials;
 
         return CloningProjectLoader.doWithProject({
