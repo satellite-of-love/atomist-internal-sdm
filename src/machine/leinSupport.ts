@@ -185,7 +185,7 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
         const version = await rwlcVersion(rwlc);
         return sdm.projectLoader.doWithProject({
             credentials,
-            id: new GitHubRepoRef(id.owner, id.repo, branch),
+            id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", branch),
             readOnly: false,
 
         },
