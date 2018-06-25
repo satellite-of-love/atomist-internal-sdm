@@ -15,7 +15,7 @@
  */
 
 import {
-    HandlerContext, logger, SuccessPromise,
+    HandlerContext, logger, Parameter, Parameters, SuccessPromise,
 } from "@atomist/automation-client";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
@@ -24,6 +24,7 @@ import {
     allSatisfied,
     Builder,
     editorAutofixRegistration,
+    EditorRegistration,
     ExecuteGoalResult,
     ExtensionPack,
     hasFile,
@@ -127,7 +128,43 @@ export const LeinSupport: ExtensionPack = {
                     pushTest: IsLein,
                 }));
 
+        sdm.addEditor(UpdateK8SpecEditor);
     },
+};
+
+@Parameters()
+export class K8SpecUpdaterParameters {
+
+    @Parameter({ required: false, pattern: /.*/ })
+    public readonly customAffirmation: string;
+}
+
+/**
+ * A command handler wrapping the editor
+ * @type {HandleCommand<EditOneOrAllParameters>}
+ */
+export const UpdateK8SpecEditor: EditorRegistration = {
+    createEditor: () => async (project: Project, ctx: HandlerContext, params: any): Promise<Project> => {
+        const loader = new CloningProjectLoader();
+        return sdm.projectLoader.doWithProject({
+            credentials,
+            id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", branch),
+            readOnly: false,
+
+        },
+            async (project: GitProject) => {
+                await updateK8Spec(project, rwlc.context, { owner: id.owner, repo: id.repo, version });
+                await project.commit(`Update ${id.owner}/${id.repo} to ${version}`);
+                await project.push();
+                return SuccessPromise;
+            },
+        );
+        return updateK8Spec(project, ctx, {});
+    },
+    name: "k8-spec-updater",
+    paramsMaker: () => new K8SpecUpdaterParameters(),
+    editMode: ap => ap.editMode,
+    intent: "update spec",
 };
 
 /**
