@@ -32,8 +32,8 @@ import {
     enableDeploy,
 } from "@atomist/sdm-core";
 import { executeTag } from "@atomist/sdm-core";
-import { IsLein } from "@atomist/sdm-core";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
+import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
 import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
