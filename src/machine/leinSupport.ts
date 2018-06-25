@@ -163,7 +163,7 @@ export const UpdateK8SpecEditor: EditorRegistration = {
             context: ctx,
         },
             async (prj: GitProject) => {
-                const result = await updateK8Spec(project, ctx, { owner, repo, version });
+                const result = await updateK8Spec(prj, ctx, { owner, repo, version });
                 await prj.commit(`Update ${owner}/${repo} to ${version}`);
                 await prj.push();
                 return result;
