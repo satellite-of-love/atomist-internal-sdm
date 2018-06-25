@@ -15,7 +15,7 @@
  */
 
 import {
-    HandlerContext, HandlerResult, logger, SuccessPromise,
+    HandlerContext, logger, SuccessPromise,
 } from "@atomist/automation-client";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
@@ -57,13 +57,15 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as util from "util";
 
+import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
 import { Project } from "@atomist/automation-client/project/Project";
-import { toPromise } from "@atomist/automation-client/project/util/projectUtils";
+import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 import { ExecuteGoalWithLog } from "@atomist/sdm";
 import * as executeBuild from "@atomist/sdm/internal/delivery/build/executeBuild";
 import * as projectVersioner from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
 import { IntegrationTestGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 import { rwlcVersion } from "./release";
+
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
 
@@ -137,10 +139,13 @@ export const LeinSupport: ExtensionPack = {
  * @param version
  * @param project
  */
-export async function updateK8Spec(owner: string, repo: string, version: string, project: Project): Promise<HandlerResult> {
-    const files = await toPromise(project.streamFiles("**/*.json"));
+export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: HandlerContext, params: any): Promise<Project> => {
 
-    files.forEach(async f => {
+    const owner = params.owner;
+    const repo = params.repo;
+    const version = params.version;
+
+    return doWithFiles(project, "**/*.json", async f => {
         logger.info("Processing file: " + f.path);
         const spec = JSON.parse(await f.getContent());
         let dirty = false;
@@ -177,8 +182,7 @@ export async function updateK8Spec(owner: string, repo: string, version: string,
         }
     });
 
-    return SuccessPromise;
-}
+};
 function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): ExecuteGoalWithLog {
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
         const { credentials, id } = rwlc;
@@ -190,7 +194,7 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
 
         },
             async (project: GitProject) => {
-                await updateK8Spec(id.owner, id.repo, version, project);
+                await updateK8Spec(project, rwlc.context, { owner: id.owner, repo: id.repo, version });
                 await project.commit(`Update ${id.owner}/${id.repo} to ${version}`);
                 await project.push();
                 return SuccessPromise;

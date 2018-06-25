@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { HandlerContext } from "@atomist/automation-client";
 import { SimpleRepoId } from "@atomist/automation-client/operations/common/RepoId";
 import { InMemoryProject } from "@atomist/automation-client/project/mem/InMemoryProject";
 import * as fs from "fs";
@@ -30,7 +31,7 @@ describe("updateK8Specs", () => {
             const version = "1.2.3-123123123";
             const p = InMemoryProject.from(new SimpleRepoId("atomisthq", "pochta"),
                 { path: inProject, content: contents });
-            await updateK8Spec("atomisthq", "pochta", version, p);
+            await updateK8Spec(p, {} as HandlerContext, { owner: "atomisthq", repo: "pochta", version });
             const updatedSpec = await (await p.findFile(inProject)).getContent();
             const updatedSpecOjb = JSON.parse(updatedSpec);
             assert(updatedSpecOjb.spec.template.spec.containers[0].image === "sforzando-dockerv2-local.jfrog.io/pochta:1.2.3-123123123");
@@ -46,7 +47,7 @@ describe("updateK8Specs", () => {
             const version = "1.2.3-123123123";
             const p = InMemoryProject.from(new SimpleRepoId("atomist", "sdm"),
                 { path: inProject, content: contents });
-            await updateK8Spec("atomista", "sdm", version, p);
+            await updateK8Spec(p, {} as HandlerContext, { owner: "atomista", repo: "bruce", version });
             const updatedSpec = await (await p.findFile(inProject)).getContent();
             assert(!updatedSpec.includes(version));
             done();
