@@ -58,6 +58,7 @@ import * as path from "path";
 import * as util from "util";
 
 import { SimpleRepoId } from "@atomist/automation-client/operations/common/RepoId";
+import { Project } from "@atomist/automation-client/project/Project";
 import { toPromise } from "@atomist/automation-client/project/util/projectUtils";
 import { ExecuteGoalWithLog } from "@atomist/sdm";
 import * as executeBuild from "@atomist/sdm/internal/delivery/build/executeBuild";
@@ -137,16 +138,19 @@ export const LeinSupport: ExtensionPack = {
  * @param version
  * @param project
  */
-async function updateSpec(owner: string, repo: string, version: string, project: GitProject): Promise<HandlerResult> {
+export async function updateK8Spec(owner: string, repo: string, version: string, project: Project): Promise<HandlerResult> {
     const files = await toPromise(project.streamFiles("**/*.json"));
-    files.forEach(async f => {
+
+    await files.forEach(async f => {
+        logger.info("Processing file: " + f.path);
         const spec = JSON.parse(await f.getContent());
+        let dirty = false;
         if (spec.kind === "Deployment") {
             const template = spec.spec.template;
             const updater = template.metadata.annotations["atomist.updater"] as string;
             if (updater) {
+                logger.info("Found updater config" + updater);
                 const mapping = updater.replace("{", "").replace("}", "").split(" ");
-                let dirty = false;
                 if (`${owner}/${repo}` === mapping[1]) {
                     spec.spec.template.spec.containers = _.reduce(
                         spec.spec.template.spec.containers, (acc, container) => {
@@ -157,18 +161,23 @@ async function updateSpec(owner: string, repo: string, version: string, project:
                                     dirty = true;
                                     container.image = `${repoWithName}:${version}`;
                                 }
-                            } else {
-                                acc.push(container);
                             }
+                            acc.push(container);
                             return acc;
                         }, []);
                 }
                 if (dirty) {
+                    logger.info("Spec updated, writing to " + f.path);
                     await f.setContent(JSON.stringify(spec));
+                    logger.info("Spec written " + f.path);
                 }
             }
         }
+        if (dirty) {
+            logger.info(`Updated ${owner}/${repo} to ${version} in ${f.path}`);
+        }
     });
+
     return SuccessPromise;
 }
 function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): ExecuteGoalWithLog {
@@ -181,7 +190,12 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
             readOnly: false,
 
         },
-            async (g: GitProject) => updateSpec(id.owner, id.repo, version, g),
+            async (project: GitProject) => {
+                await updateK8Spec(id.owner, id.repo, version, project);
+                await project.commit(`Update ${id.owner}/${id.repo} to ${version}`);
+                await project.push();
+                return SuccessPromise;
+            },
         );
     };
 }

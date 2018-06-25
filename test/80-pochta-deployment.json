@@ -1,0 +1,99 @@
+{
+  "apiVersion" : "extensions/v1beta1",
+  "kind" : "Deployment",
+  "metadata" : {
+    "name" : "pochta",
+    "labels" : {
+      "service" : "pochta"
+    }
+  },
+  "spec" : {
+    "replicas" : 2,
+    "revisionHistoryLimit" : 3,
+    "selector" : {
+      "matchLabels" : {
+        "app" : "pochta"
+      }
+    },
+    "template" : {
+      "metadata" : {
+        "name" : "pochta",
+        "labels" : {
+          "app" : "pochta",
+          "service" : "pochta"
+        },
+        "annotations" : {
+          "kick" : "9",
+          "atomist.config" : "{secret/logzio read secret/kafka read aws/creds/sqsrw read secret/graphql read aws/creds/dynamo read secret/dynamo-us-east-1 read secret/pochta read secret/elasticsearch read secret/keys/jwt/githuboauthredirect/* read secret/pochta/* read}",
+          "atomist.updater" : "{sforzando-dockerv2-local.jfrog.io/pochta atomisthq/pochta}",
+          "service-discovery.datadoghq.com/pochta.check_names" : "[\"jmx\"]",
+          "service-discovery.datadoghq.com/pochta.init_configs" : "[{\"is_jmx\": true}]",
+          "service-discovery.datadoghq.com/pochta.instances" : "[{\"name\": \"pochta_%%host%%\", \"port\": 6001, \"host\": \"%%host%%\", \"tags\": \"%%tags%%\", \"conf\": [{\"include\": {\"domain\": \"java.lang\", \"bean\": [\"java.lang:type=OperatingSystem\"], \"attribute\": [\"ProcessCpuLoad\"]}}, {\"include\": {\"domain\": \"java.lang\", \"bean\": [\"java.lang:type=Memory\"], \"attribute\": [\"NonHeapMemoryUsage\"]}}, {\"include\": {\"type\": \"MemoryPool\", \"domain\": \"java.lang\", \"bean\": [\"java.lang:type=MemoryPool,name=PS Old Gen\"], \"attribute\": [\"Usage\"]}}, {\"include\": {\"type\": \"MemoryPool\", \"domain\": \"java.lang\", \"bean\": [\"java.lang:type=MemoryPool,name=Code Cache\"], \"attribute\": [\"Usage\"]}}, {\"include\": {\"type\": \"MemoryPool\", \"domain\": \"java.lang\", \"bean\": [\"java.lang:type=MemoryPool,name=PS Eden Space\"], \"attribute\": [\"Usage\"]}}, {\"include\": {\"type\": \"MemoryPool\", \"domain\": \"java.lang\", \"bean\": [\"java.lang:type=MemoryPool,name=PS Survivor Space\"], \"attribute\": [\"Usage\"]}}, {\"include\": {\"type\": \"GarbageCollector\", \"domain\": \"java.lang\", \"bean\": [\"java.lang:type=GarbageCollector,name=PS Scavenge\"], \"attribute\": {\"CollectionCount\": {\"metric_type\": \"counter\", \"alias\": \"jmx.gc.minor_collection_count\"}, \"CollectionTime\": {\"metric_type\": \"counter\", \"alias\": \"jmx.gc.minor_collection_time\"}}}}, {\"include\": {\"type\": \"GarbageCollector\", \"domain\": \"java.lang\", \"bean\": [\"java.lang:type=GarbageCollector,name=PS MarkSweep\"], \"attribute\": {\"CollectionCount\": {\"metric_type\": \"counter\", \"alias\": \"jmx.gc.major_collection_count\"}, \"CollectionTime\": {\"metric_type\": \"counter\", \"alias\": \"jmx.gc.major_collection_time\"}}}}]}]"
+        }
+      },
+      "spec" : {
+        "containers" : [ {
+          "name" : "pochta",
+          "image" : "sforzando-dockerv2-local.jfrog.io/pochta:0.1.1-20180619192016",
+          "imagePullPolicy" : "Always",
+          "resources" : {
+            "limits" : {
+              "cpu" : 1.0,
+              "memory" : "3500Mi"
+            },
+            "requests" : {
+              "cpu" : 0.5,
+              "memory" : "2800Mi"
+            }
+          },
+          "readinessProbe" : {
+            "httpGet" : {
+              "path" : "/admin/ready",
+              "port" : "http",
+              "scheme" : "HTTP"
+            },
+            "initialDelaySeconds" : 10,
+            "timeoutSeconds" : 3,
+            "periodSeconds" : 10,
+            "successThreshold" : 1,
+            "failureThreshold" : 3
+          },
+          "livenessProbe" : {
+            "httpGet" : {
+              "path" : "/admin/health",
+              "port" : "http",
+              "scheme" : "HTTP"
+            },
+            "initialDelaySeconds" : 200,
+            "timeoutSeconds" : 3,
+            "periodSeconds" : 10,
+            "successThreshold" : 1,
+            "failureThreshold" : 3
+          },
+          "env" : [ {
+            "name" : "APP_NAME",
+            "value" : "pochta"
+          } ],
+          "ports" : [ {
+            "name" : "http",
+            "containerPort" : 9090,
+            "protocol" : "TCP"
+          } ]
+        } ],
+        "restartPolicy" : "Always",
+        "terminationGracePeriodSeconds" : 20,
+        "dnsPolicy" : "ClusterFirst",
+        "imagePullSecrets" : [ {
+          "name" : "atomistjfrog"
+        } ]
+      }
+    },
+    "strategy" : {
+      "type" : "RollingUpdate",
+      "rollingUpdate" : {
+        "maxUnavailable" : 1,
+        "maxSurge" : 1
+      }
+    }
+  }
+}
