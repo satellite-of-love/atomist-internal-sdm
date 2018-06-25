@@ -58,6 +58,7 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as util from "util";
 
+import { EditorOrReviewerParameters } from "@atomist/automation-client/operations/common/params/BaseEditorOrReviewerParameters";
 import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
@@ -65,7 +66,6 @@ import { ExecuteGoalWithLog } from "@atomist/sdm";
 import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
 import { IntegrationTestGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 import { rwlcVersion } from "./release";
-import { EditorOrReviewerParameters } from "@atomist/automation-client/operations/common/params/BaseEditorOrReviewerParameters";
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
 
@@ -154,7 +154,7 @@ export const UpdateK8SpecEditor: EditorRegistration = {
         const version = params.version;
         const owner = project.id.owner;
         const repo = project.id.repo;
-        
+
         const credentials = (params as EditorOrReviewerParameters).targets.credentials;
 
         return CloningProjectLoader.doWithProject({
