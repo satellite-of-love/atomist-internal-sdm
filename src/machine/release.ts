@@ -64,7 +64,7 @@ interface ProjectRegistryInfo {
     version: string;
 }
 
-async function rwlcVersion(rwlc: RunWithLogContext): Promise<string> {
+export async function rwlcVersion(rwlc: RunWithLogContext): Promise<string> {
     const commit = rwlc.status.commit;
     const version = await readSdmVersion(
         commit.repo.owner,

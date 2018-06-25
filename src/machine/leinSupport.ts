@@ -15,7 +15,7 @@
  */
 
 import {
-    HandlerContext, logger,
+    HandlerContext, HandlerResult, logger, SuccessPromise,
 } from "@atomist/automation-client";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
@@ -29,6 +29,7 @@ import {
     hasFile,
     ProjectLoader,
     RunWithLogContext,
+    SoftwareDeliveryMachineOptions,
     StatusForExecuteGoal,
 } from "@atomist/sdm";
 import * as build from "@atomist/sdm/dsl/buildDsl";
@@ -56,9 +57,13 @@ import * as _ from "lodash";
 import * as path from "path";
 import * as util from "util";
 
+import { Project } from "@atomist/automation-client/project/Project";
+import { toPromise } from "@atomist/automation-client/project/util/projectUtils";
+import { ExecuteGoalWithLog } from "@atomist/sdm";
 import * as executeBuild from "@atomist/sdm/internal/delivery/build/executeBuild";
 import * as projectVersioner from "@atomist/sdm/internal/delivery/build/local/projectVersioner";
-
+import { IntegrationTestGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
+import { rwlcVersion } from "./release";
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
 
@@ -90,28 +95,109 @@ export const LeinSupport: ExtensionPack = {
         );
 
         sdm.addGoalImplementation("leinVersioner", VersionGoal,
-            executeVersioner(sdm.configuration.sdm.projectLoader, LeinProjectVersioner), { pushTest: IsLein })
-            .addGoalImplementation("leinDockerBuild", DockerBuildGoal,
-                executeDockerBuild(
-                    sdm.configuration.sdm.projectLoader,
-                    imageNamer,
-                    [MetajarPreparation],
-                    {
-                        ...sdm.configuration.sdm.docker.jfrog as DockerOptions,
-                        dockerfileFinder: async () => "docker/Dockerfile",
-                    }), { pushTest: allSatisfied(IsLein, hasFile("docker/Dockerfile")) })
-            .addAutofixes(
-                editorAutofixRegistration(
-                    {
-                        name: "cljformat",
-                        editor: async p => {
-                            await clj.cljfmt(p.baseDir);
-                            return p;
-                        },
-                        pushTest: IsLein,
-                    }));
+            executeVersioner(sdm.configuration.sdm.projectLoader, LeinProjectVersioner), { pushTest: IsLein });
+
+        sdm.addGoalImplementation("updateStagingK8Specs", UpdateStagingK8SpecsGoal,
+            k8SpecUpdater(sdm.configuration.sdm, "staging"));
+
+        sdm.addGoalImplementation("updateProdK8Specs", UpdateProdK8SpecsGoal,
+            k8SpecUpdater(sdm.configuration.sdm, "prod"));
+
+        sdm.addGoalImplementation("runItegrationTests", IntegrationTestGoal,
+            (r: RunWithLogContext): Promise<ExecuteGoalResult> => SuccessPromise);
+
+        sdm.addGoalImplementation("leinDockerBuild", DockerBuildGoal,
+            executeDockerBuild(
+                sdm.configuration.sdm.projectLoader,
+                imageNamer,
+                [MetajarPreparation],
+                {
+                    ...sdm.configuration.sdm.docker.jfrog as DockerOptions,
+                    dockerfileFinder: async () => "docker/Dockerfile",
+                }), { pushTest: allSatisfied(IsLein, hasFile("docker/Dockerfile")) });
+
+        sdm.addAutofixes(
+            editorAutofixRegistration(
+                {
+                    name: "cljformat",
+                    editor: async p => {
+                        await clj.cljfmt(p.baseDir);
+                        return p;
+                    },
+                    pushTest: IsLein,
+                }));
+
     },
 };
+
+/**
+ * Update all Deployments that contain the mapping
+ * @param owner
+ * @param repo
+ * @param version
+ * @param project
+ */
+export async function updateK8Spec(owner: string, repo: string, version: string, project: Project): Promise<HandlerResult> {
+    const files = await toPromise(project.streamFiles("**/*.json"));
+
+    files.forEach(async f => {
+        logger.info("Processing file: " + f.path);
+        const spec = JSON.parse(await f.getContent());
+        let dirty = false;
+        if (spec.kind === "Deployment") {
+            const template = spec.spec.template;
+            const updater = template.metadata.annotations["atomist.updater"] as string;
+            if (updater) {
+                logger.info("Found updater config" + updater);
+                const mapping = updater.replace("{", "").replace("}", "").split(" ");
+                if (`${owner}/${repo}` === mapping[1]) {
+                    spec.spec.template.spec.containers = _.reduce(
+                        spec.spec.template.spec.containers, (acc, container) => {
+                            const repoWithName = container.image.split(":")[0];
+                            if (repoWithName === mapping[0]) {
+                                const nv = container.image.split("/")[1].split(":");
+                                if (nv[1] !== version) {
+                                    dirty = true;
+                                    container.image = `${repoWithName}:${version}`;
+                                }
+                            }
+                            acc.push(container);
+                            return acc;
+                        }, []);
+                }
+                if (dirty) {
+                    logger.info("Spec updated, writing to " + f.path);
+                    await f.setContent(JSON.stringify(spec));
+                    logger.info("Spec written " + f.path);
+                }
+            }
+        }
+        if (dirty) {
+            logger.info(`Updated ${owner}/${repo} to ${version} in ${f.path}`);
+        }
+    });
+
+    return SuccessPromise;
+}
+function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): ExecuteGoalWithLog {
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { credentials, id } = rwlc;
+        const version = await rwlcVersion(rwlc);
+        return sdm.projectLoader.doWithProject({
+            credentials,
+            id: new GitHubRepoRef(id.owner, id.repo, branch),
+            readOnly: false,
+
+        },
+            async (project: GitProject) => {
+                await updateK8Spec(id.owner, id.repo, version, project);
+                await project.commit(`Update ${id.owner}/${id.repo} to ${version}`);
+                await project.push();
+                return SuccessPromise;
+            },
+        );
+    };
+}
 
 const key = process.env.TEAM_CRED;
 const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
