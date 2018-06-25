@@ -215,7 +215,7 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                 }
                 if (dirty) {
                     logger.info("Spec updated, writing to " + f.path);
-                    await f.setContent(JSON.stringify(spec));
+                    await f.setContent(JSON.stringify(spec, null, 2));
                     logger.info("Spec written " + f.path);
                 }
             }
