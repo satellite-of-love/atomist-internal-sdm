@@ -247,7 +247,7 @@ function leinDeployer(sdm: SoftwareDeliveryMachineOptions): ExecuteGoalWithLog {
                 return spawnAndWatch({
                     command: "lein",
                     args: [
-                        "deploy",
+                        "test",
                     ],
                 }, { cwd: project.baseDir }, rwlc.progressLog);
             },
