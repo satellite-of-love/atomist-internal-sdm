@@ -91,9 +91,6 @@ export const DefaultBranchGoals = new Goals(
     "Default Branch",
     AutofixGoal,
     TagGoal,
-    UpdateStagingK8SpecsGoal,
-    UpdateProdK8SpecsGoal,
-    IntegrationTestGoal,
 );
 
 // Build including docker build
@@ -122,6 +119,9 @@ export const LeinDockerGoals = new Goals(
     "Lein Docker Build",
     ...LeinBuildGoals.goals,
     DockerBuildGoal,
+    UpdateStagingK8SpecsGoal,
+    UpdateProdK8SpecsGoal,
+    IntegrationTestGoal,
 );
 
 export const LeinDefaultBranchDockerGoals = new Goals(
