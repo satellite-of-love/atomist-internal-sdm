@@ -111,7 +111,7 @@ export const LeinBuildGoals = new Goals(
 
 export const LeinDefaultBranchBuildGoals = new Goals(
     "Lein Build",
-    ...CheckGoals.goals,
+    ...LeinBuildGoals.goals,
     ...DefaultBranchGoals.goals,
 );
 
