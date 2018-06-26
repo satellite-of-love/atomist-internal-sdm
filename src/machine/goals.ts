@@ -95,14 +95,6 @@ export const DefaultBranchGoals = new Goals(
 
 // Build including docker build
 
-export const LibraryPublished = new Goal({
-    uniqueName: "LibraryPublished",
-    environment: ProductionEnvironment,
-    orderedName: "3-prod-library-published",
-    displayName: "publish library",
-    completedDescription: "Library Published",
-});
-
 export const LeinBuildGoals = new Goals(
     "Lein Build",
     ...CheckGoals.goals,
@@ -113,6 +105,7 @@ export const LeinDefaultBranchBuildGoals = new Goals(
     "Lein Build",
     ...LeinBuildGoals.goals,
     ...DefaultBranchGoals.goals,
+    PublishGoal,
 );
 
 export const LeinDockerGoals = new Goals(

@@ -64,7 +64,7 @@ import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 import { ExecuteGoalWithLog } from "@atomist/sdm";
 import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
-import { IntegrationTestGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
+import { IntegrationTestGoal, PublishGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 import { rwlcVersion } from "./release";
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
@@ -95,6 +95,9 @@ export const LeinSupport: ExtensionPack = {
                 .itMeans("Lein build")
                 .set(leinBuilder(sdm.configuration.sdm.projectLoader)),
         );
+
+        sdm.addGoalImplementation("Deploy Jar", PublishGoal,
+            leinDeployer(sdm.configuration.sdm));
 
         sdm.addGoalImplementation("leinVersioner", VersionGoal,
             executeVersioner(sdm.configuration.sdm.projectLoader, LeinProjectVersioner), { pushTest: IsLein });
@@ -226,6 +229,32 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
     });
 
 };
+
+function leinDeployer(sdm: SoftwareDeliveryMachineOptions): ExecuteGoalWithLog {
+    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+        const { credentials, id, context } = rwlc;
+        const version = await rwlcVersion(rwlc);
+
+        return sdm.projectLoader.doWithProject({
+            credentials,
+            id,
+            readOnly: false,
+            context,
+        },
+            async (project: GitProject) => {
+                const file = path.join(project.baseDir, "project.clj");
+                clj.setVersion(file, version);
+                return spawnAndWatch({
+                    command: "lein",
+                    args: [
+                        "deploy",
+                    ],
+                }, { cwd: project.baseDir }, rwlc.progressLog);
+            },
+        );
+    };
+}
+
 function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): ExecuteGoalWithLog {
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
         const { credentials, id } = rwlc;
