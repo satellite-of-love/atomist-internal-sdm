@@ -243,7 +243,7 @@ function leinDeployer(sdm: SoftwareDeliveryMachineOptions): ExecuteGoalWithLog {
         },
             async (project: GitProject) => {
                 const file = path.join(project.baseDir, "project.clj");
-                clj.setVersion(file, version);
+                await clj.setVersion(file, version);
                 return spawnAndWatch({
                     command: "lein",
                     args: [

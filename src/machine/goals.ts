@@ -19,11 +19,9 @@
 import {
     AutofixGoal,
     BuildGoal,
-    Goal,
     Goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
-    ProductionEnvironment,
     ReviewGoal,
 } from "@atomist/sdm";
 import {
