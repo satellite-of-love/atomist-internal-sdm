@@ -119,13 +119,13 @@ export const LeinDockerGoals = new Goals(
     "Lein Docker Build",
     ...LeinBuildGoals.goals,
     DockerBuildGoal,
-    UpdateStagingK8SpecsGoal,
-    UpdateProdK8SpecsGoal,
-    IntegrationTestGoal,
 );
 
 export const LeinDefaultBranchDockerGoals = new Goals(
     "Lein Docker Build",
     ...LeinDockerGoals.goals,
     ...DefaultBranchGoals.goals,
+    UpdateStagingK8SpecsGoal,
+    UpdateProdK8SpecsGoal,
+    IntegrationTestGoal,
 );
