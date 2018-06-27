@@ -120,7 +120,6 @@ export const LeinSupport: ExtensionPack = {
                     org: "atomisthqa",
                     sdm: new GitHubRepoRef("atomist", "sample-sdm"),
                 }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild")(r);
-                process.env.NODE_ENV = "production";
                 return res;
             });
 
