@@ -66,6 +66,9 @@ import { ExecuteGoalWithLog } from "@atomist/sdm";
 import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
 import { IntegrationTestGoal, PublishGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 import { rwlcVersion } from "./release";
+
+import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
+
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
 
@@ -109,7 +112,10 @@ export const LeinSupport: ExtensionPack = {
             k8SpecUpdater(sdm.configuration.sdm, "prod"));
 
         sdm.addGoalImplementation("runItegrationTests", IntegrationTestGoal,
-            (r: RunWithLogContext): Promise<ExecuteGoalResult> => SuccessPromise);
+            executeSmokeTests(sdm.configuration.sdm.projectLoader, {
+                team: "T1L0VDKJP",
+                org: "atomisthqa",
+            }, new GitHubRepoRef("atomist", "sdm-smoke-test")));
 
         sdm.addGoalImplementation("leinDockerBuild", DockerBuildGoal,
             executeDockerBuild(
