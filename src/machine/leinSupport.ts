@@ -115,6 +115,7 @@ export const LeinSupport: ExtensionPack = {
             executeSmokeTests(sdm.configuration.sdm.projectLoader, {
                 team: "T1L0VDKJP",
                 org: "atomisthqa",
+                sdm: new GitHubRepoRef("atomist", "sample-sdm"),
             }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild"));
 
         sdm.addGoalImplementation("leinDockerBuild", DockerBuildGoal,
