@@ -40,7 +40,6 @@ export const PublishGoal = new GoalWithPrecondition({
     workingDescription: "Publishing...",
     completedDescription: "Published",
     failedDescription: "Published failed",
-    isolated: true,
 }, BuildGoal);
 
 export const UpdateStagingK8SpecsGoal = new GoalWithPrecondition({
@@ -51,7 +50,6 @@ export const UpdateStagingK8SpecsGoal = new GoalWithPrecondition({
     workingDescription: "Updating staging specs...",
     completedDescription: "Staging K8 specs updated",
     failedDescription: "Staging K8 spec update failed",
-    isolated: true,
 }, TagGoal);
 
 export const IntegrationTestGoal = new GoalWithPrecondition({
@@ -62,9 +60,9 @@ export const IntegrationTestGoal = new GoalWithPrecondition({
     workingDescription: "Running integration tests...",
     completedDescription: "Integration tests passed",
     failedDescription: "Integration tests failed",
-    isolated: true,
     waitingForApprovalDescription: "Promote to Prod",
     approvalRequired: true,
+    isolated: true,
 }, UpdateStagingK8SpecsGoal);
 
 export const UpdateProdK8SpecsGoal = new GoalWithPrecondition({
@@ -75,7 +73,6 @@ export const UpdateProdK8SpecsGoal = new GoalWithPrecondition({
     workingDescription: "Updating prod specs...",
     completedDescription: "Prod K8 specs updated",
     failedDescription: "Prod K8 spec update failed",
-    isolated: true,
 }, IntegrationTestGoal);
 
 // Just running review and autofix
