@@ -8,22 +8,22 @@ This page details all runtime OSS dependencies of `@atomist/clojure-sdm`.
 
 | License | Count |
 |---------|-------|
-|AFLv2.1|1|
-|Apache-2.0|35|
-|Artistic-2.0|4|
-|BSD-2-Clause|22|
-|BSD-3-Clause|30|
-|BSD|8|
-|CC-BY-3.0|3|
-|CC0-1.0|4|
-|Custom: https://github.com/douglascrockford/JSON-js|1|
-|Custom: https://github.com/rundis/rewrite-cljs|1|
-|GPL-3.0|4|
-|ISC|113|
-|MIT|680|
-|Public Domain|1|
-|Unlicense|3|
-|WTFPL|3|
+|[AFLv2.1](#aflv21)|1|
+|[Apache-2.0](#apache-20)|35|
+|[Artistic-2.0](#artistic-20)|4|
+|[BSD-2-Clause](#bsd-2-clause)|22|
+|[BSD-3-Clause](#bsd-3-clause)|30|
+|[BSD](#bsd)|8|
+|[CC-BY-3.0](#cc-by-30)|3|
+|[CC0-1.0](#cc0-10)|4|
+|[Custom: https://github.com/douglascrockford/JSON-js](#custom-httpsgithubcomdouglascrockfordjson-js)|1|
+|[Custom: https://github.com/rundis/rewrite-cljs](#custom-httpsgithubcomrundisrewrite-cljs)|1|
+|[GPL-3.0](#gpl-30)|4|
+|[ISC](#isc)|113|
+|[MIT](#mit)|680|
+|[Public Domain](#public-domain)|1|
+|[Unlicense](#unlicense)|3|
+|[WTFPL](#wtfpl)|3|
 
 #### AFLv2.1
 
