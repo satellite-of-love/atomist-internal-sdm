@@ -118,11 +118,7 @@ export const LeinSupport: ExtensionPack = {
                 const res = executeSmokeTests(sdm.configuration.sdm.projectLoader, {
                     team: "T1L0VDKJP",
                     org: "atomisthqa",
-                    config: {
-                        http: {
-                            port: 2867,
-                        },
-                    },
+                    port: 2867,
                     sdm: new GitHubRepoRef("atomist", "sample-sdm"),
                 }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild")(r);
                 return res;
