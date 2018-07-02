@@ -55,7 +55,6 @@ import * as df from "dateformat";
 import * as fs from "fs";
 import * as _ from "lodash";
 import * as path from "path";
-import * as util from "util";
 
 import { EditorOrReviewerParameters } from "@atomist/automation-client/operations/common/params/BaseEditorOrReviewerParameters";
 import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
