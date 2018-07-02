@@ -23,7 +23,7 @@ import * as clj from "@atomist/clj-editors";
 import {
     allSatisfied,
     Builder,
-    editorAutofixRegistration,
+    EditorAutofixRegistration,
     EditorRegistration,
     ExecuteGoalResult,
     ExtensionPack,
@@ -134,16 +134,16 @@ export const LeinSupport: ExtensionPack = {
                     dockerfileFinder: async () => "docker/Dockerfile",
                 }), { pushTest: allSatisfied(IsLein, hasFile("docker/Dockerfile")) });
 
-        sdm.addAutofixes(
-            editorAutofixRegistration(
-                {
-                    name: "cljformat",
-                    editor: async p => {
-                        await clj.cljfmt(p.baseDir);
-                        return p;
-                    },
-                    pushTest: IsLein,
-                }));
+        sdm.addAutofix(
+
+            {
+                name: "cljformat",
+                editor: async p => {
+                    await clj.cljfmt(p.baseDir);
+                    return p;
+                },
+                pushTest: IsLein,
+            });
 
         sdm.addEditor(UpdateK8SpecEditor);
     },

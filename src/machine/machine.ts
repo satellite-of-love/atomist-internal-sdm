@@ -76,7 +76,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .setGoals(LeinBuildGoals),
     );
 
-    sdm.addCommands(EnableDeploy, DisableDeploy);
+    sdm.addCommand(DisableDeploy);
+    sdm.addCommand(EnableDeploy);
 
     sdm.addGoalImplementation("tag", TagGoal,
         executeTag(sdm.configuration.sdm.projectLoader));
