@@ -263,6 +263,7 @@ function leinDeployer(sdm: SoftwareDeliveryMachineOptions): ExecuteGoalWithLog {
                     ],
                 }, await enrich({
                     cwd: project.baseDir,
+                    env: process.env,
                 }, project), rwlc.progressLog);
             },
         );
