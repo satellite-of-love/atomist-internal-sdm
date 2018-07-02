@@ -28,8 +28,8 @@ import {
     TagGoal,
 } from "@atomist/sdm-core";
 import {
-    disableDeploy,
-    enableDeploy,
+    DisableDeploy,
+    EnableDeploy,
 } from "@atomist/sdm-core";
 import { executeTag } from "@atomist/sdm-core";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
@@ -76,7 +76,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .setGoals(LeinBuildGoals),
     );
 
-    sdm.addSupportingCommands(enableDeploy, disableDeploy);
+    sdm.addCommands(EnableDeploy, DisableDeploy);
 
     sdm.addGoalImplementation("tag", TagGoal,
         executeTag(sdm.configuration.sdm.projectLoader));
