@@ -110,11 +110,11 @@ export const LeinSupport: ExtensionPack = {
         sdm.addGoalImplementation("updateProdK8Specs", UpdateProdK8SpecsGoal,
             k8SpecUpdater(sdm.configuration.sdm, "prod"));
 
-        sdm.addGoalImplementation("runItegrationTests", IntegrationTestGoal,
+        sdm.addGoalImplementation("integrationTests", IntegrationTestGoal,
             // wrap so that we can set the env as desired
             async (r: RunWithLogContext): Promise<ExecuteGoalResult> => {
                 process.env.NODE_ENV = "development";
-                const res = executeSmokeTests(sdm.configuration.sdm.projectLoader, {
+                const res = await executeSmokeTests(sdm.configuration.sdm.projectLoader, {
                     team: "T1L0VDKJP",
                     org: "atomisthqa",
                     port: 2867,
