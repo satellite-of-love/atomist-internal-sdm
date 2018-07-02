@@ -23,7 +23,6 @@ import * as clj from "@atomist/clj-editors";
 import {
     allSatisfied,
     Builder,
-    EditorAutofixRegistration,
     EditorRegistration,
     ExecuteGoalResult,
     ExtensionPack,
