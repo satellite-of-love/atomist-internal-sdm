@@ -290,18 +290,23 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
     };
 }
 
-const key = process.env.TEAM_CRED;
-const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
-const defaultEncryptedEnv = { env: clj.vault(key, vault) };
-
 /**
  * Add stuff from vault to env
  * @param options original options
  * @param project optional project
  */
-async function enrich(options: SpawnOptions, project?: GitProject): Promise<SpawnOptions> {
+async function enrich(options: SpawnOptions = {}, project: GitProject): Promise<SpawnOptions> {
+    const key = process.env.TEAM_CRED;
+    const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
+    const defaultEncryptedEnv = { env: clj.vault(key, vault) };
     logger.info(`run build enrichment on SpawnOptions`);
-    const encryptedEnv = project != null ? { env: clj.vault(key, `${project.baseDir}/vault.txt`) } : {};
+    const encryptedEnv = { env: clj.vault(key, `${project.baseDir}/vault.txt`) };
+    if (!options.cwd) {
+        options.cwd = project.baseDir;
+    }
+    if (!options.env) {
+        options.env = process.env;
+    }
     const enriched = _.merge(options, defaultEncryptedEnv, encryptedEnv) as SpawnOptions;
     return enriched;
 }
@@ -333,23 +338,18 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
                         id: new GitHubRepoRef("owner", "repo"),
                     };
                 },
-                options: {
-                    env: {
-                        ...process.env,
-                    },
-                },
             },
         });
 }
 
 export async function MetajarPreparation(p: GitProject, rwlc: RunWithLogContext): Promise<ExecuteGoalResult> {
-    logger.info(`run ./metajar.sh from ${p.baseDir} with ${util.inspect(defaultEncryptedEnv, false, null)}`);
+    logger.info(`run ./metajar.sh from ${p.baseDir}`);
     const result = await spawnAndWatch(
         {
             command: "./metajar.sh",
             // args: ["with-profile", "metajar", "do", "clean,", "metajar"],
         },
-        _.merge({ cwd: p.baseDir }, { env: process.env }, defaultEncryptedEnv),
+        await enrich({}, p),
         rwlc.progressLog,
         {
             errorFinder: code => code !== 0,
