@@ -259,9 +259,11 @@ function leinDeployer(sdm: SoftwareDeliveryMachineOptions): ExecuteGoalWithLog {
                 return spawnAndWatch({
                     command: "lein",
                     args: [
-                        "test",
+                        "deploy",
                     ],
-                }, { cwd: project.baseDir }, rwlc.progressLog);
+                }, await enrich({
+                    cwd: project.baseDir,
+                }, project), rwlc.progressLog);
             },
         );
     };
@@ -291,6 +293,18 @@ const key = process.env.TEAM_CRED;
 const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
 const defaultEncryptedEnv = { env: clj.vault(key, vault) };
 
+/**
+ * Add stuff from vault to env
+ * @param options original options
+ * @param project optional project
+ */
+async function enrich(options: SpawnOptions, project?: GitProject): Promise<SpawnOptions> {
+    logger.info(`run build enrichment on SpawnOptions`);
+    const encryptedEnv = project != null ? { env: clj.vault(key, `${project.baseDir}/vault.txt`) } : {};
+    const enriched = _.merge(options, defaultEncryptedEnv, encryptedEnv) as SpawnOptions;
+    return enriched;
+}
+
 function leinBuilder(projectLoader: ProjectLoader): Builder {
     return new SpawnBuilder(
         {
@@ -308,12 +322,7 @@ function leinBuilder(projectLoader: ProjectLoader): Builder {
                         message: "lein errors",
                     };
                 },
-                enrich: async (options: SpawnOptions, p: GitProject): Promise<SpawnOptions> => {
-                    logger.info(`run build enrichment on SpawnOptions`);
-                    const encryptedEnv = { env: clj.vault(key, `${p.baseDir}/vault.txt`) };
-                    const enriched = _.merge(options, defaultEncryptedEnv, encryptedEnv) as SpawnOptions;
-                    return enriched;
-                },
+                enrich,
                 projectToAppInfo: async (p: GitProject) => {
                     const projectClj = await p.findFile("project.clj");
                     logger.info(`run projectToAppInfo in ${p.baseDir}/${projectClj.path}`);
