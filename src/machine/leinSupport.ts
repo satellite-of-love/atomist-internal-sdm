@@ -118,6 +118,7 @@ export const LeinSupport: ExtensionPack = {
                     org: "atomisthqa",
                     port: 2867,
                     sdm: new GitHubRepoRef("atomist", "sample-sdm"),
+                    graphql: "https://automation-staging.atomist.services/graphql/team"
                     api: "https://automation-staging.atomist.services/registration",
                 }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild")(r);
                 return res;
