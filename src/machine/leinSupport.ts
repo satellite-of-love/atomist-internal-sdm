@@ -110,19 +110,15 @@ export const LeinSupport: ExtensionPack = {
             k8SpecUpdater(sdm.configuration.sdm, "prod"));
 
         sdm.addGoalImplementation("integrationTests", IntegrationTestGoal,
-            // wrap so that we can set the env as desired
-            async (r: RunWithLogContext): Promise<ExecuteGoalResult> => {
-                process.env.NODE_ENV = "development";
-                const res = await executeSmokeTests(sdm.configuration.sdm.projectLoader, {
+            executeSmokeTests(sdm.configuration.sdm.projectLoader, {
                     team: "T1L0VDKJP",
                     org: "atomisthqa",
                     port: 2867,
                     sdm: new GitHubRepoRef("atomist", "sample-sdm"),
                     graphql: "https://automation-staging.atomist.services/graphql/team",
                     api: "https://automation-staging.atomist.services/registration",
-                }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild")(r);
-                return res;
-            });
+                }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild"),
+            );
 
         sdm.addGoalImplementation("leinDockerBuild", DockerBuildGoal,
             executeDockerBuild(
