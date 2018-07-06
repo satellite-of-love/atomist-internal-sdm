@@ -22,7 +22,9 @@ import {
     Goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
+    ProductionEnvironment,
     ReviewGoal,
+    StagingEnvironment,
 } from "@atomist/sdm";
 import {
     DockerBuildGoal,
@@ -44,7 +46,7 @@ export const PublishGoal = new GoalWithPrecondition({
 
 export const UpdateStagingK8SpecsGoal = new GoalWithPrecondition({
     uniqueName: "UpdateStagingK8Specs",
-    environment: IndependentOfEnvironment,
+    environment: StagingEnvironment,
     orderedName: "5-update-staging-k8-specs",
     displayName: "update staging k8s specs",
     workingDescription: "Updating staging specs...",
@@ -54,7 +56,7 @@ export const UpdateStagingK8SpecsGoal = new GoalWithPrecondition({
 
 export const IntegrationTestGoal = new GoalWithPrecondition({
     uniqueName: "IntegrationTest",
-    environment: IndependentOfEnvironment,
+    environment: StagingEnvironment,
     orderedName: "6-integration-test",
     displayName: "integration test",
     workingDescription: "Running integration tests...",
@@ -67,7 +69,7 @@ export const IntegrationTestGoal = new GoalWithPrecondition({
 
 export const UpdateProdK8SpecsGoal = new GoalWithPrecondition({
     uniqueName: "UpdateProdK8Specs",
-    environment: IndependentOfEnvironment,
+    environment: ProductionEnvironment,
     orderedName: "7-update-prod-k8-specs",
     displayName: "update prod k8s specs",
     workingDescription: "Updating prod specs...",
