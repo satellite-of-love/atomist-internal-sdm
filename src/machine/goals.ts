@@ -64,6 +64,7 @@ export const IntegrationTestGoal = new GoalWithPrecondition({
     failedDescription: "Integration tests failed",
     waitingForApprovalDescription: "Promote to Prod",
     approvalRequired: true,
+    retryFeasible: true,
     isolated: true,
 }, UpdateStagingK8SpecsGoal);
 
