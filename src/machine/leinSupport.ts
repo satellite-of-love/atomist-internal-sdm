@@ -73,7 +73,6 @@ import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
-
         const projectclj = path.join(p.baseDir, "project.clj");
         const commit = status.commit;
         const newversion = await readSdmVersion(
@@ -94,25 +93,19 @@ export const LeinSupport: ExtensionPack = {
     vendor: "Atomist",
     version: "0.1.0",
     configure: sdm => {
-
         sdm.addBuildRules(
             build.when(IsLein)
                 .itMeans("Lein build")
                 .set(leinBuilder(sdm.configuration.sdm.projectLoader)),
         );
-
         sdm.addGoalImplementation("Deploy Jar", PublishGoal,
             leinDeployer(sdm.configuration.sdm));
-
         sdm.addGoalImplementation("leinVersioner", VersionGoal,
             executeVersioner(sdm.configuration.sdm.projectLoader, LeinProjectVersioner), { pushTest: IsLein });
-
         sdm.addGoalImplementation("updateStagingK8Specs", UpdateStagingK8SpecsGoal,
             k8SpecUpdater(sdm.configuration.sdm, "staging"));
-
         sdm.addGoalImplementation("updateProdK8Specs", UpdateProdK8SpecsGoal,
             k8SpecUpdater(sdm.configuration.sdm, "prod"));
-
         sdm.addGoalImplementation("integrationTests", IntegrationTestGoal,
             executeSmokeTests(sdm.configuration.sdm.projectLoader, {
                 team: "T1L0VDKJP",
@@ -123,7 +116,6 @@ export const LeinSupport: ExtensionPack = {
                 api: "https://automation-staging.atomist.services/registration",
             }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild"),
         );
-
         sdm.addGoalImplementation("leinDockerBuild", DockerBuildGoal,
             executeDockerBuild(
                 sdm.configuration.sdm.projectLoader,
@@ -178,7 +170,7 @@ export async function addCacheHooks(p: Project): Promise<Project> {
         const target = path.join(".atomist/", path.relative(dotAtomist, file));
         const content = await readFileAsync(file);
         logger.info(`Copying file ${file} -> ${target}`);
-        p.addFile(target, content);
+        return p.addFile(target, content);
 
     }));
     logger.info("Finished copying .atomist files");
@@ -187,10 +179,8 @@ export async function addCacheHooks(p: Project): Promise<Project> {
 
 @Parameters()
 export class K8SpecUpdaterParameters {
-
     @Parameter({ required: true, pattern: /prod|staging/, validInput: "prod | staging" })
     public readonly env: string;
-
     @Parameter({ required: true, pattern: /.*/ })
     public readonly version: string;
 }
@@ -405,6 +395,5 @@ export const LeinProjectVersioner: ProjectVersioner = async (status, p) => {
     const version = `${projectVersion}-${branchSuffix}${df(new Date(), "yyyymmddHHMMss")}`;
 
     await clj.setVersion(file, version);
-
     return version;
 };
