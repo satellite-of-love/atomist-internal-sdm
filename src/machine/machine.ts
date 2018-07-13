@@ -23,7 +23,6 @@ import {
     ToDefaultBranch,
     whenPushSatisfies,
 } from "@atomist/sdm";
-import { summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
 import {
     TagGoal,
 } from "@atomist/sdm-core";
@@ -33,9 +32,11 @@ import {
 } from "@atomist/sdm-core";
 import { executeTag } from "@atomist/sdm-core";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
+import { NoGoals, summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
 import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
+import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureRepo";
 import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
 import { LeinSupport } from "./leinSupport";
 
@@ -55,9 +56,9 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
         // Clojure
 
-        // whenPushSatisfies(IsLein, not(HasTravisFile), not(MaterialChangeToClojureRepo))
-        //     .itMeans("No material change")
-        //     .setGoals(NoGoals),
+        whenPushSatisfies(IsLein, not(HasTravisFile), not(MaterialChangeToClojureRepo))
+            .itMeans("No material change")
+            .setGoals(NoGoals),
 
         whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile, ToDefaultBranch)
             .itMeans("Build a Clojure Service with Leiningen")

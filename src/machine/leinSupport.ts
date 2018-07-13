@@ -111,14 +111,14 @@ export const LeinSupport: ExtensionPack = {
 
         sdm.addGoalImplementation("integrationTests", IntegrationTestGoal,
             executeSmokeTests(sdm.configuration.sdm.projectLoader, {
-                    team: "T1L0VDKJP",
-                    org: "atomisthqa",
-                    port: 2867,
-                    sdm: new GitHubRepoRef("atomist", "sample-sdm"),
-                    graphql: "https://automation-staging.atomist.services/graphql/team",
-                    api: "https://automation-staging.atomist.services/registration",
-                }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild"),
-            );
+                team: "T1L0VDKJP",
+                org: "atomisthqa",
+                port: 2867,
+                sdm: new GitHubRepoRef("atomist", "sample-sdm"),
+                graphql: "https://automation-staging.atomist.services/graphql/team",
+                api: "https://automation-staging.atomist.services/registration",
+            }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild"),
+        );
 
         sdm.addGoalImplementation("leinDockerBuild", DockerBuildGoal,
             executeDockerBuild(
@@ -141,9 +141,24 @@ export const LeinSupport: ExtensionPack = {
                 pushTest: IsLein,
             });
 
+        sdm.addAutofix(
+            {
+                name: "maven-repo-cache",
+                editor: addCacheHooks,
+                pushTest: IsLein,
+            },
+        );
+
         sdm.addEditor(UpdateK8SpecEditor);
     },
 };
+
+async function addCacheHooks(p: Project): Promise<Project> {
+    // const dotAtomist = path.join(fs.realpathSync(__dirname), "../../../resources/dot-atomist");
+    // await p.addDirectory(".atomist");
+    // await p.addFile(".atomist/")
+    return p;
+}
 
 @Parameters()
 export class K8SpecUpdaterParameters {

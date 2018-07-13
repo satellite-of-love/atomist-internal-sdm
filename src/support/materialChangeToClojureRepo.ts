@@ -20,13 +20,12 @@ import {
     pushTest,
 } from "@atomist/sdm";
 import {
-    anyFileChangedWithExtension,
     filesChangedSince,
 } from "@atomist/sdm/api-helper/misc/git/filesChangedSince";
 
 import * as _ from "lodash";
 
-const FileToWatch = ["clj", "json", "yml", "xml", "sh"];
+const ExtsToIgnore = ["README.md"];
 
 export const MaterialChangeToClojureRepo: PushTest = pushTest("Material change to Clojure repo", async pci => {
     const beforeSha: string = _.get(pci, "push.before.sha");
@@ -36,10 +35,16 @@ export const MaterialChangeToClojureRepo: PushTest = pushTest("Material change t
         return true;
     }
     logger.debug(`MaterialChangeToClojureRepo: Changed files are [${changedFiles.join(",")}]`);
-    if (anyFileChangedWithExtension(changedFiles, FileToWatch)) {
-        logger.debug("Change is material on %j: changed files=[%s]", pci.id, changedFiles.join(","));
-        return true;
+
+    if (_.every(changedFiles, file => {
+        return _.some(ExtsToIgnore, ignore => {
+            return file.endsWith(ignore);
+        });
+    })) {
+        logger.debug("Change is immaterial on %j: changed files=[%s]", pci.id, changedFiles.join(","));
+        return false;
     }
-    logger.debug("Change is immaterial on %j: changed files=[%s]", pci.id, changedFiles.join(","));
-    return false;
+
+    logger.debug("Change is material on %j: changed files=[%s]", pci.id, changedFiles.join(","));
+    return true;
 });

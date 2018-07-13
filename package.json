@@ -31,11 +31,13 @@
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
     "logzio-nodejs": "^0.4.10",
+    "node-dir": "^0.1.17",
     "serialize-error": "^2.1.0",
     "uuid": "^3.2.1",
     "winston-logzio": "^1.0.6"
   },
   "devDependencies": {
+    "@types/node-dir": "0.0.32",
     "@types/fs-extra": "^5.0.2",
     "@types/lodash": "^4.14.108",
     "@types/mocha": "^2.2.48",

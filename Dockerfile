@@ -3,7 +3,7 @@ FROM ubuntu:17.10
 LABEL maintainer="Atomist <docker@atomist.com>"
 
 RUN apt-get update && apt-get install -y \
-        curl \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 ENV DUMB_INIT_VERSION=1.2.1
@@ -12,11 +12,11 @@ RUN curl -s -L -O https://github.com/Yelp/dumb-init/releases/download/v$DUMB_INI
     && rm -f dumb-init_${DUMB_INIT_VERSION}_amd64.deb
 
 RUN apt-get update && apt-get install -y \
-        default-jdk \
-        docker.io \
-        git \
-        maven \
-        unzip \
+    default-jdk \
+    docker.io \
+    git \
+    maven \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 RUN git config --global user.email "bot@atomist.com" \
@@ -52,7 +52,7 @@ CMD [ "node_modules/@atomist/automation-client/start.client.js" ]
 # Install app dependencies
 RUN mkdir ./resources
 COPY package.json package-lock.json ./
-COPY ./resources/vault.txt ./resources
+COPY ./resources/* ./resources
 RUN npm ci
 
 # Bundle app source
