@@ -27,10 +27,12 @@ import {
     ExecuteGoalResult,
     ExtensionPack,
     hasFile,
+    not,
     ProjectLoader,
     RunWithLogContext,
     SoftwareDeliveryMachineOptions,
     StatusForExecuteGoal,
+    ToDefaultBranch,
 } from "@atomist/sdm";
 import {
     DockerBuildGoal,
@@ -67,6 +69,7 @@ import { IntegrationTestGoal, PublishGoal, UpdateProdK8SpecsGoal, UpdateStagingK
 import { rwlcVersion } from "./release";
 
 import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
+import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
@@ -146,7 +149,7 @@ export const LeinSupport: ExtensionPack = {
             {
                 name: "maven-repo-cache",
                 editor: addCacheHooks,
-                pushTest: IsLein,
+                pushTest: allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
             },
         );
 
@@ -157,7 +160,7 @@ export const LeinSupport: ExtensionPack = {
 async function addCacheHooks(p: Project): Promise<Project> {
     const dotAtomist = path.join(fs.realpathSync(__dirname), "../../../resources/dot-atomist");
     dir.files(dotAtomist, async (err, files) => {
-        files.forEach(file => {
+        files.forEach(async file => {
             // tslint:disable-next-line:no-shadowed-variable
             fs.readFile(file, async (err, c) => {
                 await p.addFile(path.join(".atomist/", file), c.toString());
