@@ -170,7 +170,8 @@ export async function addCacheHooks(p: Project): Promise<Project> {
         const target = path.join(".atomist/", path.relative(dotAtomist, file));
         const content = await readFileAsync(file);
         logger.info(`Copying file ${file} -> ${target}`);
-        return p.addFile(target, content);
+        await p.addFile(target, content);
+        return p.makeExecutable(target);
     }));
     logger.info("Finished copying .atomist files");
     return p;
