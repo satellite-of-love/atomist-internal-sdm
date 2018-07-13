@@ -156,7 +156,7 @@ export const LeinSupport: ExtensionPack = {
 
 async function addCacheHooks(p: Project): Promise<Project> {
     const dotAtomist = path.join(fs.realpathSync(__dirname), "../../../resources/dot-atomist");
-    await dir.files(dotAtomist, async (err, files) => {
+    dir.files(dotAtomist, async (err, files) => {
         files.forEach(file => {
             // tslint:disable-next-line:no-shadowed-variable
             fs.readFile(file, async (err, c) => {
