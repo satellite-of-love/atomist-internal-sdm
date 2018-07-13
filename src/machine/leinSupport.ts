@@ -132,7 +132,7 @@ export const LeinSupport: ExtensionPack = {
                     await clj.cljfmt(p.baseDir);
                     return p;
                 },
-                pushTest: IsLein,
+                pushTest: allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
             });
         sdm.addAutofix(
             {
@@ -164,14 +164,13 @@ function readFileAsync(fileName: string): Promise<string> {
 }
 
 export async function addCacheHooks(p: Project): Promise<Project> {
-    const dotAtomist = path.join(fs.realpathSync(__dirname), "../../resources/dot-atomist");
+    const dotAtomist = path.join(fs.realpathSync(__dirname), "../resources/dot-atomist");
     const files = await filesAsync(dotAtomist);
     await Promise.all(_.map(files, async file => {
         const target = path.join(".atomist/", path.relative(dotAtomist, file));
         const content = await readFileAsync(file);
         logger.info(`Copying file ${file} -> ${target}`);
         return p.addFile(target, content);
-
     }));
     logger.info("Finished copying .atomist files");
     return p;
@@ -324,7 +323,7 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
  */
 async function enrich(options: SpawnOptions = {}, project: GitProject): Promise<SpawnOptions> {
     const key = process.env.TEAM_CRED;
-    const vault = path.join(fs.realpathSync(__dirname), "../../../resources/vault.txt");
+    const vault = path.join(fs.realpathSync(__dirname), "../resources/vault.txt");
     const defaultEncryptedEnv = { env: clj.vault(key, vault) };
     logger.info(`run build enrichment on SpawnOptions`);
     const encryptedEnv = { env: clj.vault(key, `${project.baseDir}/vault.txt`) };

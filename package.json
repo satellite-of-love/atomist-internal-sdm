@@ -65,7 +65,7 @@
   "scripts": {
     "autostart": "npm-run-all --print-label --parallel watch:compile watch",
     "autotest": "supervisor --watch src,test --extensions ts --no-restart-on exit --quiet --exec npm -- test",
-    "build": "npm-run-all compile test lint typedoc",
+    "build": "npm-run-all compile test lint typedoc copy:resources",
     "clean": "npm-run-all clean:js clean:build",
     "clean:build": "rimraf *-v8.log profile.txt build",
     "clean:dist": "npm-run-all clean clean:npm",
@@ -74,6 +74,7 @@
     "compile": "npm-run-all git:info compile:gql compile:ts",
     "compile:gql": "npm-run-all gql:gen gql:copy",
     "compile:ts": "tsc --project .",
+    "copy:resources": "copyfiles \"./src/resources/**/* \" build",
     "debug": "node $NODE_DEBUG_OPTION node_modules/@atomist/automation-client/start.client.js",
     "fmt": "npm-run-all fmt:ts fmt:gql",
     "fmt:ts": "tsfmt --replace",
