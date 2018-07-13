@@ -54,6 +54,7 @@ import { SpawnOptions } from "child_process";
 import * as df from "dateformat";
 import * as fs from "fs";
 import * as _ from "lodash";
+import * as dir from "node-dir";
 import * as path from "path";
 
 import { EditorOrReviewerParameters } from "@atomist/automation-client/operations/common/params/BaseEditorOrReviewerParameters";
@@ -154,9 +155,16 @@ export const LeinSupport: ExtensionPack = {
 };
 
 async function addCacheHooks(p: Project): Promise<Project> {
-    // const dotAtomist = path.join(fs.realpathSync(__dirname), "../../../resources/dot-atomist");
-    // await p.addDirectory(".atomist");
-    // await p.addFile(".atomist/")
+    const dotAtomist = path.join(fs.realpathSync(__dirname), "../../../resources/dot-atomist");
+    await dir.files(dotAtomist, async (err, files) => {
+        files.forEach(file => {
+            // tslint:disable-next-line:no-shadowed-variable
+            fs.readFile(file, async (err, c) => {
+                await p.addFile(path.join(".atomist/", file), c.toString());
+            });
+
+        });
+    });
     return p;
 }
 

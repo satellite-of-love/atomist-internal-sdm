@@ -52,7 +52,7 @@ CMD [ "node_modules/@atomist/automation-client/start.client.js" ]
 # Install app dependencies
 RUN mkdir ./resources
 COPY package.json package-lock.json ./
-COPY ./resources/* ./resources
+COPY ./resources/* ./resources/
 RUN npm ci
 
 # Bundle app source
