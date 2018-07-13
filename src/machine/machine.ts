@@ -60,19 +60,19 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .itMeans("No material change")
             .setGoals(NoGoals),
 
-        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile, ToDefaultBranch)
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile, ToDefaultBranch, MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Service with Leiningen")
             .setGoals(LeinDefaultBranchDockerGoals),
 
-        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile)
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile, MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Service with Leiningen")
             .setGoals(LeinDockerGoals),
 
-        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile), ToDefaultBranch)
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile), ToDefaultBranch, MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Library with Leiningen")
             .setGoals(LeinDefaultBranchBuildGoals),
 
-        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile))
+        whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile), MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Library with Leiningen")
             .setGoals(LeinBuildGoals),
     );
