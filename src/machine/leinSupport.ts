@@ -133,9 +133,7 @@ export const LeinSupport: ExtensionPack = {
                     ...sdm.configuration.sdm.docker.jfrog as DockerOptions,
                     dockerfileFinder: async () => "docker/Dockerfile",
                 }), { pushTest: allSatisfied(IsLein, hasFile("docker/Dockerfile")) });
-
         sdm.addAutofix(
-
             {
                 name: "cljformat",
                 editor: async p => {
@@ -144,7 +142,6 @@ export const LeinSupport: ExtensionPack = {
                 },
                 pushTest: IsLein,
             });
-
         sdm.addAutofix(
             {
                 name: "maven-repo-cache",
@@ -152,22 +149,39 @@ export const LeinSupport: ExtensionPack = {
                 pushTest: allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
             },
         );
-
         sdm.addEditor(UpdateK8SpecEditor);
     },
 };
 
-async function addCacheHooks(p: Project): Promise<Project> {
-    const dotAtomist = path.join(fs.realpathSync(__dirname), "../../../resources/dot-atomist");
-    dir.files(dotAtomist, async (err, files) => {
-        files.forEach(async file => {
-            // tslint:disable-next-line:no-shadowed-variable
-            fs.readFile(file, async (err, c) => {
-                await p.addFile(path.join(".atomist/", file), c.toString());
-            });
-
+function filesAsync(dirName: string): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+        dir.files(dirName, (err, files) => {
+            if (err !== null) { return reject(err); }
+            resolve(files);
         });
     });
+}
+
+function readFileAsync(fileName: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        fs.readFile(fileName, (err, c) => {
+            if (err !== null) { return reject(err); }
+            resolve(c.toString());
+        });
+    });
+}
+
+export async function addCacheHooks(p: Project): Promise<Project> {
+    const dotAtomist = path.join(fs.realpathSync(__dirname), "../../resources/dot-atomist");
+    const files = await filesAsync(dotAtomist);
+    await Promise.all(_.map(files, async file => {
+        const target = path.join(".atomist/", path.relative(dotAtomist, file));
+        const content = await readFileAsync(file);
+        logger.info(`Copying file ${file} -> ${target}`);
+        p.addFile(target, content);
+
+    }));
+    logger.info("Finished copying .atomist files");
     return p;
 }
 

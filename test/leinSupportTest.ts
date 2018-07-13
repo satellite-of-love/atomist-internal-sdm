@@ -19,7 +19,7 @@ import { SimpleRepoId } from "@atomist/automation-client/operations/common/RepoI
 import { InMemoryProject } from "@atomist/automation-client/project/mem/InMemoryProject";
 import * as fs from "fs";
 import * as assert from "power-assert";
-import { updateK8Spec } from "../src/machine/leinSupport";
+import { addCacheHooks, updateK8Spec } from "../src/machine/leinSupport";
 
 describe("updateK8Specs", () => {
 
@@ -52,5 +52,14 @@ describe("updateK8Specs", () => {
             assert(!updatedSpec.includes(version));
             done();
         });
+    });
+
+    it("should add .atomist/hooks for maven caching if not there", async () => {
+        const p = InMemoryProject.from(new SimpleRepoId("atomist", "sdm"),
+            { path: "project.clj", content: "{}" });
+        const fixed = await addCacheHooks(p);
+        assert(await fixed.findFile("project.clj"));
+
+        assert(await fixed.findFile(".atomist/hooks/post-code-build"));
     });
 });
