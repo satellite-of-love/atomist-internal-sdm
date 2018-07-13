@@ -57,6 +57,7 @@ describe("updateK8Specs", () => {
     it("should add .atomist/hooks for maven caching if not there", async () => {
         const p = InMemoryProject.from(new SimpleRepoId("atomist", "sdm"),
             { path: "project.clj", content: "{}" });
+        (p as any).makeExecutable = (target: string) => Promise.resolve();
         const fixed = await addCacheHooks(p);
         assert(await fixed.findFile("project.clj"));
 
