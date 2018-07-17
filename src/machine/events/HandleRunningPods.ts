@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-import { EventFired, HandlerContext, logger, Success } from "@atomist/automation-client";
+import {
+    EventFired,
+    HandlerContext,
+    logger,
+    Success,
+} from "@atomist/automation-client";
 import { OnEvent } from "@atomist/automation-client/onEvent";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { NoParameters } from "@atomist/automation-client/SmartParameters";
@@ -22,31 +27,46 @@ import { SdmGoalState } from "@atomist/sdm";
 import { findSdmGoalOnCommit } from "@atomist/sdm/api-helper/goal/fetchGoalsOnCommit";
 import { updateGoal } from "@atomist/sdm/api-helper/goal/storeGoals";
 import { RunningPods } from "../../typings/types";
-import { DeployToProd, DeployToStaging } from "../goals";
+import {
+    DeployToProd,
+    DeployToStaging,
+} from "../goals";
 
 export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParameters> {
     return async (e: EventFired<RunningPods.Subscription>, context: HandlerContext) => {
 
-        const pod = e.data.K8Pod[0];
-        const commit = pod.containers[0].image.commits[0];
+        const pod = e.data.K8Pod[ 0 ];
+        const commit = pod.containers[ 0 ].image.commits[ 0 ];
         const id = new GitHubRepoRef(commit.repo.owner, commit.repo.name, commit.sha);
 
         let deployGoal;
         let desc;
+
         if (pod.environment === "staging") {
-            deployGoal = await findSdmGoalOnCommit(context, id, commit.repo.org.provider.providerId, DeployToStaging);
-            desc = DeployToStaging.successDescription;
-        } else
-            if (pod.environment === "prod") {
+            try {
+                deployGoal = await findSdmGoalOnCommit(context, id, commit.repo.org.provider.providerId, DeployToStaging);
+                desc = DeployToStaging.successDescription;
+            } catch (err) {
+                logger.info(`No goal staging deploy goal found`);
+            }
+        } else if (pod.environment === "prod") {
+            try {
                 deployGoal = await findSdmGoalOnCommit(context, id, commit.repo.org.provider.providerId, DeployToProd);
                 desc = DeployToProd.successDescription;
+            } catch (err) {
+                logger.info(`No goal prod deploy goal found`);
             }
+        }
 
-        await updateGoal(context, deployGoal, {
-            state: SdmGoalState.success,
-            description: desc,
-        });
-        logger.info("Updated deploy goal '%s'", deployGoal.name);
+        if (deployGoal && desc) {
+            await updateGoal(context, deployGoal, {
+                state: SdmGoalState.success,
+                description: desc,
+                url: deployGoal.url,
+            });
+            logger.info("Updated deploy goal '%s'", deployGoal.name);
+        }
+
         return Success;
     };
 }
