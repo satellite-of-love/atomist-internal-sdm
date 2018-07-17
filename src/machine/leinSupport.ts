@@ -193,7 +193,6 @@ export const LeinSupport: ExtensionPack = {
                 };
             },
         });
-        sdm.addCodeTransformCommand(TransformK8Specs);
     },
 };
 
@@ -245,39 +244,6 @@ export class K8SpecUpdaterParameters {
     @Secret(Secrets.userToken("repo"))
     public readonly token: string;
 }
-
-/**
- * A command handler wrapping the transform
- */
-export const TransformK8Specs: CodeTransformRegistration<any> = {
-
-    transform: (project: Project, sdmc: CommandListenerInvocation<any>) => {
-
-        const params = sdmc.parameters;
-        const version = params.version;
-        const owner = project.id.owner;
-        const repo = project.id.repo;
-        const ctx = sdmc.context;
-        const credentials = (params as EditorOrReviewerParameters).targets.credentials;
-
-        return CloningProjectLoader.doWithProject({
-            credentials,
-            id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", params.env),
-            readOnly: false,
-            context: ctx,
-        },
-            async (prj: GitProject) => {
-                const result = await updateK8Spec(prj, ctx, { owner, repo, version });
-                await prj.commit(`Update ${owner}/${repo} to ${version}`);
-                await prj.push();
-                return result;
-            },
-        );
-    },
-    name: "k8-spec-updater",
-    paramsMaker: () => new K8SpecUpdaterParameters(),
-    intent: "update spec",
-};
 
 /**
  * Update all Deployments that contain the mapping
