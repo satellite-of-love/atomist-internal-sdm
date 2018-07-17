@@ -49,19 +49,19 @@ export const UpdateStagingK8SpecsGoal = new GoalWithPrecondition({
     environment: StagingEnvironment,
     orderedName: "5-update-staging-k8-specs",
     displayName: "update staging k8s specs",
-    workingDescription: "Updating staging specs...",
-    completedDescription: "Staging K8 specs updated",
-    failedDescription: "Staging K8 spec update failed",
+    workingDescription: "Updating `staging` K8 specs...",
+    completedDescription: "Update `staging` K8 specs",
+    failedDescription: "Update `staging` K8 specs failed",
 }, TagGoal);
 
 export const DeployToStaging = new GoalWithPrecondition({
     uniqueName: "DeployToStaging",
     environment: StagingEnvironment,
     orderedName: "5.1-deploy-to-staging",
-    displayName: "deploy to staging",
-    workingDescription: "Deploying to staging",
-    completedDescription: "Deployed to staging",
-    failedDescription: "Staging deployment failed",
+    displayName: "deploy to `staging`",
+    workingDescription: "Deploying to `staging`",
+    completedDescription: "Deployed to `staging`",
+    failedDescription: "Deployment to `staging` failed",
 }, UpdateStagingK8SpecsGoal);
 
 export const IntegrationTestGoal = new GoalWithPrecondition({
@@ -72,7 +72,7 @@ export const IntegrationTestGoal = new GoalWithPrecondition({
     workingDescription: "Running integration tests...",
     completedDescription: "Integration tests passed",
     failedDescription: "Integration tests failed",
-    waitingForApprovalDescription: "Promote to Prod",
+    waitingForApprovalDescription: "Promote to `prod`",
     approvalRequired: true,
     retryFeasible: true,
     isolated: true,
@@ -83,9 +83,9 @@ export const UpdateProdK8SpecsGoal = new GoalWithPrecondition({
     environment: ProductionEnvironment,
     orderedName: "7-update-prod-k8-specs",
     displayName: "update prod k8s specs",
-    workingDescription: "Updating prod specs...",
-    completedDescription: "Prod K8 specs updated",
-    failedDescription: "Prod K8 spec update failed",
+    workingDescription: "Updating `prod` K8 specs...",
+    completedDescription: "Update `prod` K8 specs",
+    failedDescription: "Update `prod` K8 specs failed",
 }, IntegrationTestGoal);
 
 export const DeployToProd = new GoalWithPrecondition({
@@ -93,9 +93,9 @@ export const DeployToProd = new GoalWithPrecondition({
     environment: ProductionEnvironment,
     orderedName: "5.1-deploy-to-prod",
     displayName: "deploy to prod",
-    workingDescription: "Deploying to prod",
-    completedDescription: "Deployed to prod",
-    failedDescription: "Prod deployment failed",
+    workingDescription: "Deploying to `prod`",
+    completedDescription: "Deployed to `prod`",
+    failedDescription: "Deployment to `prod` failed",
 }, UpdateProdK8SpecsGoal);
 
 // Just running review and autofix
