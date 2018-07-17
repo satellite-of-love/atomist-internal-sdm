@@ -29,7 +29,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
 
         const pod = e.data.K8Pod[0];
         const commit = pod.containers[0].image.commits[0];
-        const id = new GitHubRepoRef(commit.repo.owner, commit.repo.owner, commit.sha);
+        const id = new GitHubRepoRef(commit.repo.owner, commit.repo.name, commit.sha);
 
         let deployGoal;
         let desc;
