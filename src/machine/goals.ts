@@ -54,6 +54,16 @@ export const UpdateStagingK8SpecsGoal = new GoalWithPrecondition({
     failedDescription: "Staging K8 spec update failed",
 }, TagGoal);
 
+export const DeployToStaging = new GoalWithPrecondition({
+    uniqueName: "DeployToStaging",
+    environment: StagingEnvironment,
+    orderedName: "5.1-deploy-to-staging",
+    displayName: "deploy to staging",
+    workingDescription: "Deploying to staging",
+    completedDescription: "Deployed to staging",
+    failedDescription: "Staging deployment failed",
+}, UpdateStagingK8SpecsGoal);
+
 export const IntegrationTestGoal = new GoalWithPrecondition({
     uniqueName: "IntegrationTest",
     environment: StagingEnvironment,
@@ -66,7 +76,7 @@ export const IntegrationTestGoal = new GoalWithPrecondition({
     approvalRequired: true,
     retryFeasible: true,
     isolated: true,
-}, UpdateStagingK8SpecsGoal);
+}, DeployToStaging);
 
 export const UpdateProdK8SpecsGoal = new GoalWithPrecondition({
     uniqueName: "UpdateProdK8Specs",
@@ -77,6 +87,16 @@ export const UpdateProdK8SpecsGoal = new GoalWithPrecondition({
     completedDescription: "Prod K8 specs updated",
     failedDescription: "Prod K8 spec update failed",
 }, IntegrationTestGoal);
+
+export const DeployToProd = new GoalWithPrecondition({
+    uniqueName: "DeployToProd",
+    environment: ProductionEnvironment,
+    orderedName: "5.1-deploy-to-prod",
+    displayName: "deploy to prod",
+    workingDescription: "Deploying to prod",
+    completedDescription: "Deployed to prod",
+    failedDescription: "Prod deployment failed",
+}, UpdateProdK8SpecsGoal);
 
 // Just running review and autofix
 export const CheckGoals = new Goals(
@@ -119,4 +139,6 @@ export const LeinDefaultBranchDockerGoals = new Goals(
     UpdateStagingK8SpecsGoal,
     UpdateProdK8SpecsGoal,
     IntegrationTestGoal,
+    DeployToStaging,
+    DeployToProd,
 );

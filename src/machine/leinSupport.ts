@@ -65,11 +65,13 @@ import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 import { ExecuteGoalWithLog } from "@atomist/sdm";
 import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
-import { IntegrationTestGoal, PublishGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
+import { DeployToProd, DeployToStaging, IntegrationTestGoal, PublishGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 import { rwlcVersion } from "./release";
 
 import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
+import { subscription } from "@atomist/automation-client/graph/graphQL";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
+import { handleRuningPods } from "./events/HandleRunningPods";
 
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
@@ -125,6 +127,26 @@ export const LeinSupport: ExtensionPack = {
                     ...sdm.configuration.sdm.docker.jfrog as DockerOptions,
                     dockerfileFinder: async () => "docker/Dockerfile",
                 }), { pushTest: allSatisfied(IsLein, hasFile("docker/Dockerfile")) });
+
+        sdm.addKnownSideEffect(
+            DeployToStaging,
+            "deployToStaging",
+            allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
+        );
+
+        sdm.addKnownSideEffect(
+            DeployToProd,
+            "deployToProd",
+            allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
+        );
+
+        sdm.addEvent({
+            name: "handleRunningPod",
+            description: "Update goal based on running pods in an environemnt",
+            subscription: subscription("runningPods"),
+            listener: handleRuningPods(sdm.configuration.sdm.repoRefResolver),
+        });
+
         sdm.addAutofix(
             {
                 name: "cljformat",
@@ -396,4 +418,5 @@ export const LeinProjectVersioner: ProjectVersioner = async (status, p) => {
 
     await clj.setVersion(file, version);
     return version;
+    // tslint:disable-next-line:max-file-line-count
 };

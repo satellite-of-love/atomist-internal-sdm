@@ -1,0 +1,23 @@
+subscription runningPods {
+  K8Pod {
+    environment
+    containers(state: "running") @required {
+      name
+      state
+      image {
+        commits {
+          sha
+          repo {
+            name
+            owner
+            org {
+              provider {
+                providerId
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
