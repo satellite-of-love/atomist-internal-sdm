@@ -23,8 +23,6 @@ import * as clj from "@atomist/clj-editors";
 import {
     allSatisfied,
     Builder,
-    CodeTransformRegistration,
-    CommandListenerInvocation,
     ExecuteGoalResult,
     ExtensionPack,
     hasFile,
@@ -59,7 +57,6 @@ import * as _ from "lodash";
 import * as dir from "node-dir";
 import * as path from "path";
 
-import { EditorOrReviewerParameters } from "@atomist/automation-client/operations/common/params/BaseEditorOrReviewerParameters";
 import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
