@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 import { EventFired, HandlerContext, logger, Success } from "@atomist/automation-client";
 import { OnEvent } from "@atomist/automation-client/onEvent";
 import { EmptyParameters, RepoRefResolver, SdmGoalState } from "@atomist/sdm";
