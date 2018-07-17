@@ -31,6 +31,7 @@ import { NodeFsLocalProject } from "@atomist/automation-client/project/local/Nod
 import {
     ExecuteGoalResult,
     ExecuteGoalWithLog,
+    GoalInvocation,
     PrepareForGoalExecution,
     ProgressLog,
     ProjectLoader,
@@ -46,7 +47,6 @@ import { DevelopmentEnvOptions } from "@atomist/sdm-core";
 import { ProjectIdentifier } from "@atomist/sdm-core";
 import { readSdmVersion } from "@atomist/sdm-core";
 import { DockerOptions } from "@atomist/sdm-core";
-import { branchFromCommit } from "@atomist/sdm/api-helper/goal/executeBuild";
 import { DelimitedWriteProgressLogDecorator } from "@atomist/sdm/api-helper/log/DelimitedWriteProgressLogDecorator";
 import {
     ChildProcessResult,
@@ -64,15 +64,15 @@ interface ProjectRegistryInfo {
     version: string;
 }
 
-export async function rwlcVersion(rwlc: RunWithLogContext): Promise<string> {
-    const commit = rwlc.status.commit;
+export async function rwlcVersion(gi: GoalInvocation): Promise<string> {
+    const sdmGoal = gi.sdmGoal;
     const version = await readSdmVersion(
-        commit.repo.owner,
-        commit.repo.name,
-        commit.repo.org.provider.providerId,
-        commit.sha,
-        branchFromCommit(commit),
-        rwlc.context);
+        sdmGoal.repo.owner,
+        sdmGoal.repo.name,
+        sdmGoal.repo.providerId,
+        sdmGoal.sha,
+        sdmGoal.branch,
+        gi.context);
     return version;
 }
 
@@ -374,17 +374,16 @@ export function executeReleaseDocker(
                 }
             }
 
-            const commit = rwlc.status.commit;
             const version = await rwlcVersion(rwlc);
             const versionRelease = releaseVersion(version);
             const image = dockerImage({
                 registry: options.registry,
-                name: commit.repo.name,
+                name: rwlc.id.repo,
                 version,
             });
             const tag = dockerImage({
                 registry: options.registry,
-                name: commit.repo.name,
+                name: rwlc.id.repo,
                 version: versionRelease,
             });
 
@@ -410,14 +409,14 @@ export function executeReleaseDocker(
  */
 export function executeReleaseTag(projectLoader: ProjectLoader): ExecuteGoalWithLog {
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
-        const { status, credentials, id, context } = rwlc;
+        const { credentials, id, context } = rwlc;
 
         return projectLoader.doWithProject({ credentials, id, context, readOnly: true }, async p => {
-            const commit = status.commit;
             const version = await rwlcVersion(rwlc);
             const versionRelease = releaseVersion(version);
-            await createTagForStatus(id, commit.sha, commit.message, versionRelease, credentials);
-            const commitTitle = commit.message.replace(/\n[\S\s]*/, "");
+            const message = rwlc.sdmGoal.push.commits[0].message;
+            await createTagForStatus(id, id.sha, message, versionRelease, credentials);
+            const commitTitle = message.replace(/\n[\S\s]*/, "");
             const release = {
                 tag_name: versionRelease,
                 name: `${versionRelease}: ${commitTitle}`,

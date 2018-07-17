@@ -15,7 +15,7 @@
  */
 
 import {
-    HandlerContext, logger, Parameter, Parameters, SuccessPromise,
+    HandlerContext, logger, MappedParameter, MappedParameters, Parameter, Parameters, Secret, Secrets, SuccessPromise,
 } from "@atomist/automation-client";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
@@ -23,15 +23,16 @@ import * as clj from "@atomist/clj-editors";
 import {
     allSatisfied,
     Builder,
-    EditorRegistration,
+    CodeTransformRegistration,
+    CommandListenerInvocation,
     ExecuteGoalResult,
     ExtensionPack,
     hasFile,
     not,
-    ProjectLoader,
     RunWithLogContext,
+    SdmGoalEvent,
+    SoftwareDeliveryMachine,
     SoftwareDeliveryMachineOptions,
-    StatusForExecuteGoal,
     ToDefaultBranch,
 } from "@atomist/sdm";
 import {
@@ -47,7 +48,6 @@ import { SpawnBuilder } from "@atomist/sdm-core/internal/delivery/build/local/Sp
 import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
 import { DockerImageNameCreator } from "@atomist/sdm-core/pack/docker/executeDockerBuild";
 import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
-import { branchFromCommit } from "@atomist/sdm/api-helper/goal/executeBuild";
 import {
     asSpawnCommand,
     spawnAndWatch,
@@ -66,20 +66,25 @@ import { doWithFiles } from "@atomist/automation-client/project/util/projectUtil
 import { ExecuteGoalWithLog } from "@atomist/sdm";
 import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
 import { DeployToProd, DeployToStaging, IntegrationTestGoal, PublishGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
-import { rwlcVersion } from "./release";
 
 import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
 import { subscription } from "@atomist/automation-client/graph/graphQL";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { handleRuningPods } from "./events/HandleRunningPods";
+import { rwlcVersion } from "./release";
 
 const imageNamer: DockerImageNameCreator =
-    async (p: GitProject, status: StatusForExecuteGoal.Fragment, options: DockerOptions, ctx: HandlerContext) => {
+    async (p: GitProject,
+           sdmGoal: SdmGoalEvent,
+           options: DockerOptions,
+           ctx: HandlerContext) => {
         const projectclj = path.join(p.baseDir, "project.clj");
-        const commit = status.commit;
         const newversion = await readSdmVersion(
-            commit.repo.owner, commit.repo.name, commit.repo.org.provider.providerId, commit.sha,
-            branchFromCommit(commit),
+            sdmGoal.repo.owner,
+            sdmGoal.repo.name,
+            sdmGoal.repo.providerId,
+            sdmGoal.sha,
+            sdmGoal.branch,
             ctx);
         const projectName = _.last(clj.getName(projectclj).split("/"));
         logger.info(`Docker Image name is generated from ${projectclj} name and version ${projectName} ${newversion}`);
@@ -98,7 +103,7 @@ export const LeinSupport: ExtensionPack = {
         sdm.addBuildRules(
             build.when(IsLein)
                 .itMeans("Lein build")
-                .set(leinBuilder(sdm.configuration.sdm.projectLoader)),
+                .set(leinBuilder(sdm)),
         );
         sdm.addGoalImplementation("Deploy Jar", PublishGoal,
             leinDeployer(sdm.configuration.sdm));
@@ -144,14 +149,14 @@ export const LeinSupport: ExtensionPack = {
             name: "handleRunningPod",
             description: "Update goal based on running pods in an environemnt",
             subscription: subscription("runningPods"),
-            listener: handleRuningPods(sdm.configuration.sdm.repoRefResolver),
+            listener: handleRuningPods(),
         });
 
         sdm.addAutofix(
             {
                 name: "cljformat",
-                editor: async p => {
-                    await clj.cljfmt(p.baseDir);
+                transform: async p => {
+                    await clj.cljfmt(p.id.path);
                     return p;
                 },
                 pushTest: allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
@@ -159,11 +164,36 @@ export const LeinSupport: ExtensionPack = {
         sdm.addAutofix(
             {
                 name: "maven-repo-cache",
-                editor: addCacheHooks,
+                transform: addCacheHooks,
                 pushTest: allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
             },
         );
-        sdm.addEditor(UpdateK8SpecEditor);
+
+        sdm.addCommand<K8SpecUpdaterParameters>({
+            name: "k8SpecUpdater",
+            description: "Update k8 specs",
+            intent: "update spec",
+            paramsMaker: K8SpecUpdaterParameters,
+            createCommand: () => {
+                return (ctx, params) => {
+
+                    return CloningProjectLoader.doWithProject({
+                        credentials: { token: params.token },
+                        id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", params.env),
+                        readOnly: false,
+                        context: ctx,
+                    },
+                        async (prj: GitProject) => {
+                            const result = await updateK8Spec(prj, ctx, { owner: params.owner, repo: params.repo, version: params.version });
+                            await prj.commit(`Update ${params.owner}/${params.repo} to ${params.version}`);
+                            await prj.push();
+                            return result;
+                        },
+                    );
+                };
+            },
+        });
+        sdm.addCodeTransformCommand(TransformK8Specs);
     },
 };
 
@@ -205,19 +235,29 @@ export class K8SpecUpdaterParameters {
     public readonly env: string;
     @Parameter({ required: true, pattern: /.*/ })
     public readonly version: string;
+
+    @MappedParameter(MappedParameters.GitHubOwner)
+    public readonly owner: string;
+
+    @MappedParameter(MappedParameters.GitHubRepository)
+    public readonly repo: string;
+
+    @Secret(Secrets.userToken("repo"))
+    public readonly token: string;
 }
 
 /**
- * A command handler wrapping the editor
- * @type {HandleCommand<EditOneOrAllParameters>}
+ * A command handler wrapping the transform
  */
-export const UpdateK8SpecEditor: EditorRegistration = {
+export const TransformK8Specs: CodeTransformRegistration<any> = {
 
-    createEditor: () => async (project: Project, ctx: HandlerContext, params: any): Promise<Project> => {
+    transform: (project: Project, sdmc: CommandListenerInvocation<any>) => {
 
+        const params = sdmc.parameters;
         const version = params.version;
         const owner = project.id.owner;
         const repo = project.id.repo;
+        const ctx = sdmc.context;
         const credentials = (params as EditorOrReviewerParameters).targets.credentials;
 
         return CloningProjectLoader.doWithProject({
@@ -360,10 +400,10 @@ async function enrich(options: SpawnOptions = {}, project: GitProject): Promise<
     return enriched;
 }
 
-function leinBuilder(projectLoader: ProjectLoader): Builder {
+function leinBuilder(sdm: SoftwareDeliveryMachine): Builder {
     return new SpawnBuilder(
         {
-            projectLoader,
+            sdm,
             options: {
                 name: "atomist.sh",
                 commands: [asSpawnCommand("./atomist.sh", { env: {} })],
@@ -412,8 +452,9 @@ export const LeinProjectVersioner: ProjectVersioner = async (status, p) => {
     if (projectVersion.endsWith("-SNAPSHOT")) {
         projectVersion = projectVersion.replace("-SNAPSHOT", "");
     }
-    const branch = branchFromCommit(status.commit);
-    const branchSuffix = branch !== status.commit.repo.defaultBranch ? `${branch}.` : "";
+    const branch = status.branch;
+    // TODO - where did my defaultBranch go?
+    const branchSuffix = branch !== "master" ? `${branch}.` : "";
     const version = `${projectVersion}-${branchSuffix}${df(new Date(), "yyyymmddHHMMss")}`;
 
     await clj.setVersion(file, version);
