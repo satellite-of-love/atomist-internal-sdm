@@ -20,6 +20,7 @@ import {
     AutofixGoal,
     BuildGoal,
     Goals,
+    goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
     ProductionEnvironment,
@@ -99,46 +100,26 @@ export const DeployToProd = new GoalWithPrecondition({
 }, UpdateProdK8SpecsGoal);
 
 // Just running review and autofix
-export const CheckGoals = new Goals(
-    "Check",
-    VersionGoal,
-    ReviewGoal,
-);
+export const CheckGoals: Goals = goals("Check")
+    .plan(VersionGoal, ReviewGoal);
 
-export const DefaultBranchGoals = new Goals(
-    "Default Branch",
-    AutofixGoal,
-    TagGoal,
-);
+export const DefaultBranchGoals: Goals = goals("Default Branch")
+    .plan(AutofixGoal, TagGoal);
 
 // Build including docker build
+export const LeinBuildGoals: Goals = goals("Lein Build")
+    .plan(CheckGoals)
+    .plan(BuildGoal).after(ReviewGoal);
 
-export const LeinBuildGoals = new Goals(
-    "Lein Build",
-    ...CheckGoals.goals,
-    new GoalWithPrecondition(BuildGoal.definition, ReviewGoal),
-);
+export const LeinDefaultBranchBuildGoals: Goals = goals("Lein Build")
+    .plan(LeinBuildGoals, DefaultBranchGoals, PublishGoal);
 
-export const LeinDefaultBranchBuildGoals = new Goals(
-    "Lein Build",
-    ...LeinBuildGoals.goals,
-    ...DefaultBranchGoals.goals,
-    PublishGoal,
-);
+export const LeinDockerGoals: Goals = goals("Lein Docker Build")
+    .plan(LeinBuildGoals, DockerBuildGoal);
 
-export const LeinDockerGoals = new Goals(
-    "Lein Docker Build",
-    ...LeinBuildGoals.goals,
-    DockerBuildGoal,
-);
-
-export const LeinDefaultBranchDockerGoals = new Goals(
-    "Lein Docker Build",
-    ...LeinDockerGoals.goals,
-    ...DefaultBranchGoals.goals,
-    UpdateStagingK8SpecsGoal,
-    UpdateProdK8SpecsGoal,
-    IntegrationTestGoal,
-    DeployToStaging,
-    DeployToProd,
-);
+export const LeinDefaultBranchDockerGoals: Goals = goals("Lein Docker Build")
+    .plan(LeinDockerGoals, DefaultBranchGoals)
+    .plan(UpdateStagingK8SpecsGoal).after(TagGoal)
+    .plan(DeployToStaging).after(UpdateStagingK8SpecsGoal)
+    .plan(IntegrationTestGoal).after(DeployToStaging)
+    .plan(DeployToProd).after(IntegrationTestGoal);
