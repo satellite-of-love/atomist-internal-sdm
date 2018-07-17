@@ -20,12 +20,12 @@ import {
     AutofixGoal,
     BuildGoal,
     Goals,
+    goals,
     GoalWithPrecondition,
     IndependentOfEnvironment,
     ProductionEnvironment,
     ReviewGoal,
     StagingEnvironment,
-    goals,
 } from "@atomist/sdm";
 import {
     DockerBuildGoal,
