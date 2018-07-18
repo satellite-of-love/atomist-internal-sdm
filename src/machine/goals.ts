@@ -122,4 +122,5 @@ export const LeinDefaultBranchDockerGoals: Goals = goals("Lein Docker Build")
     .plan(UpdateStagingK8SpecsGoal).after(TagGoal)
     .plan(DeployToStaging).after(UpdateStagingK8SpecsGoal)
     .plan(IntegrationTestGoal).after(DeployToStaging)
-    .plan(DeployToProd).after(IntegrationTestGoal);
+    .plan(UpdateProdK8SpecsGoal).after(IntegrationTestGoal)
+    .plan(DeployToProd).after(UpdateProdK8SpecsGoal);

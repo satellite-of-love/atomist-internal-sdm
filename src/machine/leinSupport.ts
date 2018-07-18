@@ -153,7 +153,7 @@ export const LeinSupport: ExtensionPack = {
             {
                 name: "cljformat",
                 transform: async p => {
-                    await clj.cljfmt(p.id.path);
+                    await clj.cljfmt((p as GitProject).baseDir);
                     return p;
                 },
                 pushTest: allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
