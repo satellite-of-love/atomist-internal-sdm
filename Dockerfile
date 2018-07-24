@@ -25,7 +25,7 @@ RUN git config --global user.email "bot@atomist.com" \
 RUN curl -sL https://deb.nodesource.com/setup_9.x | bash - \
     && apt-get update \
     && apt-get install -y nodejs \
-    && npm i -g npm@6.1.0 \
+    && npm install -g npm@6.2.0 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sL -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/v1.8.12/bin/linux/amd64/kubectl \
