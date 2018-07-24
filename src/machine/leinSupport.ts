@@ -261,31 +261,35 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
         let dirty = false;
         if (spec.kind === "Deployment") {
             const template = spec.spec.template;
-            const updater = template.metadata.annotations["atomist.updater"] as string;
-            if (updater) {
-                logger.info("Found updater config" + updater);
-                const mapping = updater.replace("{", "").replace("}", "").split(" ");
-                if (`${owner}/${repo}` === mapping[1]) {
-                    spec.spec.template.spec.containers = _.reduce(
-                        spec.spec.template.spec.containers, (acc, container) => {
-                            const repoWithName = container.image.split(":")[0];
-                            if (repoWithName === mapping[0]) {
-                                const nv = container.image.split("/")[1].split(":");
-                                if (nv[1] !== version) {
-                                    dirty = true;
-                                    container.image = `${repoWithName}:${version}`;
+            const annotations = template.metadata.annotations;
+            if (annotations) {
+                const updater = annotations["atomist.updater"] as string;
+                if (updater) {
+                    logger.info("Found updater config" + updater);
+                    const mapping = updater.replace("{", "").replace("}", "").split(" ");
+                    if (`${owner}/${repo}` === mapping[1]) {
+                        spec.spec.template.spec.containers = _.reduce(
+                            spec.spec.template.spec.containers, (acc, container) => {
+                                const repoWithName = container.image.split(":")[0];
+                                if (repoWithName === mapping[0]) {
+                                    const nv = container.image.split("/")[1].split(":");
+                                    if (nv[1] !== version) {
+                                        dirty = true;
+                                        container.image = `${repoWithName}:${version}`;
+                                    }
                                 }
-                            }
-                            acc.push(container);
-                            return acc;
-                        }, []);
-                }
-                if (dirty) {
-                    logger.info("Spec updated, writing to " + f.path);
-                    await f.setContent(JSON.stringify(spec, null, 2));
-                    logger.info("Spec written " + f.path);
+                                acc.push(container);
+                                return acc;
+                            }, []);
+                    }
+                    if (dirty) {
+                        logger.info("Spec updated, writing to " + f.path);
+                        await f.setContent(JSON.stringify(spec, null, 2));
+                        logger.info("Spec written " + f.path);
+                    }
                 }
             }
+
         }
         if (dirty) {
             logger.info(`Updated ${owner}/${repo} to ${version} in ${f.path}`);
