@@ -25,8 +25,8 @@
     "@atomist/automation-client-ext-logzio": "0.1.0-20180628224529",
     "@atomist/automation-client-ext-raven": "0.1.0-20180613131132",
     "@atomist/atomist-sdm": "0.1.4-20180716131742",
-    "@atomist/sdm": "0.3.2-20180716080725",
-    "@atomist/sdm-core": "0.3.2-20180716130446",
+    "@atomist/sdm": "0.3.2-20180727125411",
+    "@atomist/sdm-core": "0.3.2-20180727081056",
     "@atomist/sdm-pack-changelog": "0.1.1-20180713073534",
     "@atomist/sdm-pack-k8": "0.1.2-20180705162518",
     "@atomist/slack-messages": "^0.12.1",
@@ -34,9 +34,7 @@
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
     "node-dir": "^0.1.17",
-    "serialize-error": "^2.1.0",
-    "uuid": "^3.2.1",
-    "winston-logzio": "^1.0.6"
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "@types/node-dir": "0.0.32",

@@ -14,16 +14,31 @@
  * limitations under the License.
  */
 
+import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
 import {
-    HandlerContext, logger, MappedParameter, MappedParameters, Parameter, Parameters, Secret, Secrets, SuccessPromise,
+    HandlerContext,
+    logger,
+    MappedParameter,
+    MappedParameters,
+    Parameter,
+    Parameters,
+    Secret,
+    Secrets,
+    SuccessPromise,
 } from "@atomist/automation-client";
+import { subscription } from "@atomist/automation-client/graph/graphQL";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
+
+import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
 import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import { Project } from "@atomist/automation-client/project/Project";
+import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 import * as clj from "@atomist/clj-editors";
 import {
     allSatisfied,
     Builder,
     ExecuteGoalResult,
+    ExecuteGoalWithLog,
     ExtensionPack,
     hasFile,
     not,
@@ -46,31 +61,30 @@ import { SpawnBuilder } from "@atomist/sdm-core/internal/delivery/build/local/Sp
 import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
 import { DockerImageNameCreator } from "@atomist/sdm-core/pack/docker/executeDockerBuild";
 import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
+
+import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import {
     asSpawnCommand,
     spawnAndWatch,
 } from "@atomist/sdm/api-helper/misc/spawned";
+import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
+import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { SpawnOptions } from "child_process";
 import * as df from "dateformat";
 import * as fs from "fs";
 import * as _ from "lodash";
 import * as dir from "node-dir";
 import * as path from "path";
-
-import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
-import { Project } from "@atomist/automation-client/project/Project";
-import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
-import { ExecuteGoalWithLog } from "@atomist/sdm";
-import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
-import { DeployToProd, DeployToStaging, IntegrationTestGoal, PublishGoal, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
-
-import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
-import { subscription } from "@atomist/automation-client/graph/graphQL";
-import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { handleRuningPods } from "./events/HandleRunningPods";
+import {
+    DeployToProd,
+    DeployToStaging,
+    IntegrationTestGoal,
+    PublishGoal,
+    UpdateProdK8SpecsGoal,
+    UpdateStagingK8SpecsGoal,
+} from "./goals";
 import { rwlcVersion } from "./release";
-
-import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject,
@@ -173,23 +187,25 @@ export const LeinSupport: ExtensionPack = {
             description: "Update k8 specs",
             intent: "update spec",
             paramsMaker: K8SpecUpdaterParameters,
-            createCommand: () => {
-                return (ctx, params) => {
+            listener: async cli => {
 
-                    return CloningProjectLoader.doWithProject({
-                        credentials: { token: params.token },
-                        id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", params.env),
+                return CloningProjectLoader.doWithProject({
+                        credentials: { token: cli.parameters.token },
+                        id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", cli.parameters.env),
                         readOnly: false,
-                        context: ctx,
+                        context: cli.context,
                     },
-                        async (prj: GitProject) => {
-                            const result = await updateK8Spec(prj, ctx, { owner: params.owner, repo: params.repo, version: params.version });
-                            await prj.commit(`Update ${params.owner}/${params.repo} to ${params.version}`);
-                            await prj.push();
-                            return result;
-                        },
-                    );
-                };
+                    async (prj: GitProject) => {
+                        const result = await updateK8Spec(prj, cli.context, {
+                            owner: cli.parameters.owner,
+                            repo: cli.parameters.repo,
+                            version: cli.parameters.version,
+                        });
+                        await prj.commit(`Update ${cli.parameters.owner}/${cli.parameters.repo} to ${cli.parameters.version}`);
+                        await prj.push();
+                        return result;
+                    },
+                );
             },
         });
     },
@@ -198,7 +214,9 @@ export const LeinSupport: ExtensionPack = {
 function filesAsync(dirName: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
         dir.files(dirName, (err, files) => {
-            if (err !== null) { return reject(err); }
+            if (err !== null) {
+                return reject(err);
+            }
             resolve(files);
         });
     });
@@ -207,7 +225,9 @@ function filesAsync(dirName: string): Promise<string[]> {
 function readFileAsync(fileName: string): Promise<string> {
     return new Promise((resolve, reject) => {
         fs.readFile(fileName, (err, c) => {
-            if (err !== null) { return reject(err); }
+            if (err !== null) {
+                return reject(err);
+            }
             resolve(c.toString());
         });
     });
@@ -306,11 +326,11 @@ function leinDeployer(sdm: SoftwareDeliveryMachineOptions): ExecuteGoalWithLog {
         const version = await rwlcVersion(rwlc);
 
         return sdm.projectLoader.doWithProject({
-            credentials,
-            id,
-            readOnly: false,
-            context,
-        },
+                credentials,
+                id,
+                readOnly: false,
+                context,
+            },
             async (project: GitProject) => {
                 const file = path.join(project.baseDir, "project.clj");
                 await clj.setVersion(file, version);
@@ -333,11 +353,11 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
         const { credentials, id } = rwlc;
         const version = await rwlcVersion(rwlc);
         return sdm.projectLoader.doWithProject({
-            credentials,
-            id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", branch),
-            readOnly: false,
-            context: rwlc.context,
-        },
+                credentials,
+                id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", branch),
+                readOnly: false,
+                context: rwlc.context,
+            },
             async (project: GitProject) => {
                 await updateK8Spec(project, rwlc.context, { owner: id.owner, repo: id.repo, version });
                 await project.commit(`Update ${id.owner}/${id.repo} to ${version}`);
