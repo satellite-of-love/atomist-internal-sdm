@@ -70,6 +70,8 @@ import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { handleRuningPods } from "./events/HandleRunningPods";
 import { rwlcVersion } from "./release";
 
+import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
+
 const imageNamer: DockerImageNameCreator =
     async (p: GitProject,
            sdmGoal: SdmGoalEvent,
@@ -377,13 +379,7 @@ function leinBuilder(sdm: SoftwareDeliveryMachine): Builder {
                 errorFinder: (code, signal, l) => {
                     return code !== 0;
                 },
-                logInterpreter: log => {
-                    return {
-                        // We don't yet know how to interpret clojure logs
-                        relevantPart: undefined,
-                        message: "lein errors",
-                    };
-                },
+                logInterpreter: LogSuppressor,
                 enrich,
                 projectToAppInfo: async (p: GitProject) => {
                     const projectClj = await p.findFile("project.clj");
