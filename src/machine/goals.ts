@@ -114,7 +114,8 @@ export const LeinBuildGoals: Goals = goals("Lein Build")
     .plan(BuildGoal).after(ReviewGoal);
 
 export const LeinDefaultBranchBuildGoals: Goals = goals("Lein Build")
-    .plan(LeinBuildGoals, DefaultBranchGoals, PublishGoal);
+    .plan(LeinBuildGoals, DefaultBranchGoals)
+    .plan(PublishGoal).after(BuildGoal);
 
 export const LeinDockerGoals: Goals = goals("Lein Docker Build")
     .plan(LeinBuildGoals, DockerBuildGoal);
