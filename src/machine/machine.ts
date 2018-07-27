@@ -35,6 +35,7 @@ import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
 import { NoGoals, summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
 import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
+import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
 import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureRepo";
 import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
@@ -86,6 +87,8 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addExtensionPacks(
         LeinSupport,
     );
+
+    sdm.addGoalApprovalRequestVote(gitHubTeamVote("atomist-automation"));
 
     summarizeGoalsInGitHubStatus(sdm);
 
