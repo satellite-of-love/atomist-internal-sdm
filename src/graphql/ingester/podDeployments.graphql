@@ -1,0 +1,7 @@
+type PodDeployment @rootType {
+    name: String! @compositeId
+    imageTag: String! @compositeId
+    targetReplicas: Int!
+    sha: String! @compositeId
+    previousSha: String!
+}

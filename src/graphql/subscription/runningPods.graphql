@@ -5,6 +5,9 @@ subscription runningPods {
       name
       state
       image {
+        pods {
+          environment
+        }
         commits {
           sha
           repo {

@@ -35,8 +35,8 @@ import {
 export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParameters> {
     return async (e: EventFired<RunningPods.Subscription>, context: HandlerContext) => {
 
-        const pod = e.data.K8Pod[ 0 ];
-        const commit = pod.containers[ 0 ].image.commits[ 0 ];
+        const pod = e.data.K8Pod[0];
+        const commit = pod.containers[0].image.commits[0];
         const id = new GitHubRepoRef(commit.repo.owner, commit.repo.name, commit.sha);
 
         let deployGoal;
@@ -46,6 +46,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
             try {
                 deployGoal = await findSdmGoalOnCommit(context, id, commit.repo.org.provider.providerId, DeployToStaging);
                 desc = DeployToStaging.successDescription;
+
             } catch (err) {
                 logger.info(`No goal staging deploy goal found`);
             }
@@ -59,14 +60,35 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
         }
 
         if (deployGoal && desc) {
-            await updateGoal(context, deployGoal, {
-                state: SdmGoalState.success,
-                description: desc,
-                url: deployGoal.url,
-            });
+
+            // grab deploymentStarted event
+            const targetDeployment = await fetchDeploymentTarget(context, pod);
+
+            const numCurrentPods = pod.containers[0].image.pods.filter(deployedPod => {
+                return pod.environment = deployedPod.environment;
+            }).length;
+
+            if (numCurrentPods === targetDeployment.targetNumPods) {
+                // then we know we have a successful deployment
+                // need to find commits between current and previous!
+                await updateGoal(context, deployGoal, {
+                    state: SdmGoalState.success,
+                    description: desc,
+                    url: deployGoal.url,
+                });
+            }
+
             logger.info("Updated deploy goal '%s'", deployGoal.name);
         }
 
         return Success;
     };
+}
+
+export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): Promise<RunningPods.Image> {
+    return null;
+}
+
+async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod): Promise<any> {
+    return null;
 }

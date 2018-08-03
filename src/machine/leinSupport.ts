@@ -26,7 +26,7 @@ import {
     Secrets,
     SuccessPromise,
 } from "@atomist/automation-client";
-import { subscription } from "@atomist/automation-client/graph/graphQL";
+import { ingester, subscription } from "@atomist/automation-client/graph/graphQL";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 
 import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
@@ -75,7 +75,7 @@ import * as fs from "fs";
 import * as _ from "lodash";
 import * as dir from "node-dir";
 import * as path from "path";
-import { handleRuningPods } from "./events/HandleRunningPods";
+import { fetchDockerImage, handleRuningPods } from "./events/HandleRunningPods";
 import {
     DeployToProd,
     DeployToStaging,
@@ -113,6 +113,9 @@ export const LeinSupport: ExtensionPack = {
     vendor: "Atomist",
     version: "0.1.0",
     configure: sdm => {
+
+        sdm.addIngester(ingester("podDeployments"));
+
         sdm.addBuildRules(
             build.when(IsLein)
                 .itMeans("Lein build")
@@ -190,11 +193,11 @@ export const LeinSupport: ExtensionPack = {
             listener: async cli => {
 
                 return CloningProjectLoader.doWithProject({
-                        credentials: { token: cli.parameters.token },
-                        id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", cli.parameters.env),
-                        readOnly: false,
-                        context: cli.context,
-                    },
+                    credentials: { token: cli.parameters.token },
+                    id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", cli.parameters.env),
+                    readOnly: false,
+                    context: cli.context,
+                },
                     async (prj: GitProject) => {
                         const result = await updateK8Spec(prj, cli.context, {
                             owner: cli.parameters.owner,
@@ -289,6 +292,8 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                 if (updater) {
                     logger.info("Found updater config" + updater);
                     const mapping = updater.replace("{", "").replace("}", "").split(" ");
+                    let previousImage;
+                    let currentImage;
                     if (`${owner}/${repo}` === mapping[1]) {
                         spec.spec.template.spec.containers = _.reduce(
                             spec.spec.template.spec.containers, (acc, container) => {
@@ -297,7 +302,9 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                                     const nv = container.image.split("/")[1].split(":");
                                     if (nv[1] !== version) {
                                         dirty = true;
+                                        previousImage = container.image;
                                         container.image = `${repoWithName}:${version}`;
+                                        currentImage = container.image;
                                     }
                                 }
                                 acc.push(container);
@@ -307,6 +314,12 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                     if (dirty) {
                         logger.info("Spec updated, writing to " + f.path);
                         await f.setContent(JSON.stringify(spec, null, 2));
+                        // send custom event to record deployment target
+                        const previousSha = (await fetchDockerImage(ctx, previousImage)).commits[0].sha;
+                        const currentSha = (await fetchDockerImage(ctx, previousImage)).commits[0].sha;
+                        // spec.metadata.name, currentImage, spec.spec.replicas, currentSha, repo, previousSha
+                        const target = "";
+                        setDeploymentTarget(ctx, target);
                         logger.info("Spec written " + f.path);
                     }
                 }
@@ -320,17 +333,21 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
 
 };
 
+async function setDeploymentTarget(ctx: HandlerContext, target: any): Promise<any> {
+    return null;
+}
+
 function leinDeployer(sdm: SoftwareDeliveryMachineOptions): ExecuteGoalWithLog {
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
         const { credentials, id, context } = rwlc;
         const version = await rwlcVersion(rwlc);
 
         return sdm.projectLoader.doWithProject({
-                credentials,
-                id,
-                readOnly: false,
-                context,
-            },
+            credentials,
+            id,
+            readOnly: false,
+            context,
+        },
             async (project: GitProject) => {
                 const file = path.join(project.baseDir, "project.clj");
                 await clj.setVersion(file, version);
@@ -353,11 +370,11 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
         const { credentials, id } = rwlc;
         const version = await rwlcVersion(rwlc);
         return sdm.projectLoader.doWithProject({
-                credentials,
-                id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", branch),
-                readOnly: false,
-                context: rwlc.context,
-            },
+            credentials,
+            id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", branch),
+            readOnly: false,
+            context: rwlc.context,
+        },
             async (project: GitProject) => {
                 await updateK8Spec(project, rwlc.context, { owner: id.owner, repo: id.repo, version });
                 await project.commit(`Update ${id.owner}/${id.repo} to ${version}`);
