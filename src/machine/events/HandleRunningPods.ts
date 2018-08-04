@@ -26,7 +26,7 @@ import { NoParameters } from "@atomist/automation-client/SmartParameters";
 import { SdmGoalState } from "@atomist/sdm";
 import { findSdmGoalOnCommit } from "@atomist/sdm/api-helper/goal/fetchGoalsOnCommit";
 import { updateGoal } from "@atomist/sdm/api-helper/goal/storeGoals";
-import { RunningPods } from "../../typings/types";
+import { FetchDockerImage, PodDeployments, RunningPods } from "../../typings/types";
 import {
     DeployToProd,
     DeployToStaging,
@@ -67,12 +67,19 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
             const numCurrentPods = pod.containers[0].image.pods.filter(deployedPod => {
                 return pod.environment = deployedPod.environment;
             }).length;
-
-            if (numCurrentPods === targetDeployment.targetNumPods) {
+            const numTargetPods = targetDeployment.targetReplicas;
+            desc = desc + ` (${numCurrentPods}/${numTargetPods}`;
+            if (numCurrentPods === numTargetPods) {
                 // then we know we have a successful deployment
                 // need to find commits between current and previous!
                 await updateGoal(context, deployGoal, {
                     state: SdmGoalState.success,
+                    description: desc,
+                    url: deployGoal.url,
+                });
+            } else {
+                await updateGoal(context, deployGoal, {
+                    state: SdmGoalState.in_process,
                     description: desc,
                     url: deployGoal.url,
                 });
@@ -85,10 +92,20 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
     };
 }
 
-export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): Promise<RunningPods.Image> {
-    return null;
+export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): Promise<FetchDockerImage.DockerImage> {
+    return ctx.graphClient.executeQueryFromFile<FetchDockerImage.DockerImage, FetchDockerImage.Variables>(
+        "./src/graphql/query/podDeployments.graphql",
+        {
+            imageName: imageTag,
+        });
 }
 
-async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod): Promise<any> {
-    return null;
+async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod): Promise<PodDeployments.PodDeployment> {
+    return ctx.graphClient.executeQueryFromFile<PodDeployments.PodDeployment, PodDeployments.Variables>(
+        "./src/graphql/query/podDeployments.graphql",
+        {
+            env: pod.environment,
+            sha: pod.containers[0].image.commits[0].sha,
+            imageTag: pod.containers[0].imageName,
+        });
 }

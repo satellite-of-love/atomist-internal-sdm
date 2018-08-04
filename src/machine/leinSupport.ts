@@ -34,6 +34,7 @@ import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 import * as clj from "@atomist/clj-editors";
+
 import {
     allSatisfied,
     Builder,
@@ -62,6 +63,7 @@ import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
 import { DockerImageNameCreator } from "@atomist/sdm-core/pack/docker/executeDockerBuild";
 import * as build from "@atomist/sdm/api-helper/dsl/buildDsl";
 
+import { addressEvent } from "@atomist/automation-client/spi/message/MessageClient";
 import { LogSuppressor } from "@atomist/sdm/api-helper/log/logInterpreters";
 import {
     asSpawnCommand,
@@ -75,6 +77,7 @@ import * as fs from "fs";
 import * as _ from "lodash";
 import * as dir from "node-dir";
 import * as path from "path";
+import { PodDeployments } from "../typings/types";
 import { fetchDockerImage, handleRuningPods } from "./events/HandleRunningPods";
 import {
     DeployToProd,
@@ -316,10 +319,16 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                         await f.setContent(JSON.stringify(spec, null, 2));
                         // send custom event to record deployment target
                         const previousSha = (await fetchDockerImage(ctx, previousImage)).commits[0].sha;
-                        const currentSha = (await fetchDockerImage(ctx, previousImage)).commits[0].sha;
-                        // spec.metadata.name, currentImage, spec.spec.replicas, currentSha, repo, previousSha
-                        const target = "";
-                        setDeploymentTarget(ctx, target);
+                        const currentSha = (await fetchDockerImage(ctx, currentImage)).commits[0].sha;
+                        const target: PodDeployments.PodDeployment = {
+                            deploymentName: spec.metadata.name as string,
+                            imageTag: currentImage,
+                            targetReplicas: spec.spec.replicas,
+                            sha: currentSha,
+                            previousSha,
+                            environment: project.id.branch,
+                        };
+                        await ctx.messageClient.send(target, addressEvent("PodDeployment"));
                         logger.info("Spec written " + f.path);
                     }
                 }
@@ -332,10 +341,6 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
     });
 
 };
-
-async function setDeploymentTarget(ctx: HandlerContext, target: any): Promise<any> {
-    return null;
-}
 
 function leinDeployer(sdm: SoftwareDeliveryMachineOptions): ExecuteGoalWithLog {
     return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {

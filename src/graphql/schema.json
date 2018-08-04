@@ -10404,7 +10404,7 @@
                   }
                 },
                 {
-                  "name": "imageTag",
+                  "name": "deploymentName",
                   "description": null,
                   "args": [],
                   "type": {
@@ -10422,7 +10422,20 @@
                   ]
                 },
                 {
-                  "name": "name",
+                  "name": "environment",
+                  "description": null,
+                  "args": [],
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "isDeprecated": false,
+                  "deprecationReason": null,
+                  "directives": []
+                },
+                {
+                  "name": "imageTag",
                   "description": null,
                   "args": [],
                   "type": {
@@ -110390,7 +110403,7 @@
               },
               "args": [
                 {
-                  "name": "imageTag",
+                  "name": "deploymentName",
                   "description": null,
                   "args": [],
                   "type": {
@@ -110408,7 +110421,20 @@
                   ]
                 },
                 {
-                  "name": "name",
+                  "name": "environment",
+                  "description": null,
+                  "args": [],
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "isDeprecated": false,
+                  "deprecationReason": null,
+                  "directives": []
+                },
+                {
+                  "name": "imageTag",
                   "description": null,
                   "args": [],
                   "type": {
@@ -114552,7 +114578,7 @@
           "name": "PodDeployment",
           "fields": [
             {
-              "name": "imageTag",
+              "name": "deploymentName",
               "description": null,
               "args": [],
               "type": {
@@ -114574,7 +114600,24 @@
               ]
             },
             {
-              "name": "name",
+              "name": "environment",
+              "description": null,
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null,
+              "directives": []
+            },
+            {
+              "name": "imageTag",
               "description": null,
               "args": [],
               "type": {
@@ -115027,6 +115070,6 @@
     }
   },
   "extensions": {
-    "correlation_id": "6c55f2eb-5d93-4f6b-9daf-697cf4c2b825"
+    "correlation_id": "af9a66cf-793c-4f38-b187-a6d318e68ae0"
   }
 }
