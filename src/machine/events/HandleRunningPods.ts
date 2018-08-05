@@ -67,7 +67,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
             const numCurrentPods = pod.containers[0].image.pods.filter(deployedPod => {
                 return pod.environment = deployedPod.environment;
             }).length;
-            const numTargetPods = targetDeployment.targetReplicas;
+            const numTargetPods = targetDeployment[0].targetReplicas;
             desc = desc + ` (${numCurrentPods}/${numTargetPods}`;
             if (numCurrentPods === numTargetPods) {
                 // then we know we have a successful deployment
@@ -103,8 +103,8 @@ export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): P
         });
 }
 
-async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod): Promise<PodDeployments.PodDeployment> {
-    return ctx.graphClient.query<PodDeployments.PodDeployment, PodDeployments.Variables>(
+async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod): Promise<PodDeployments.PodDeployment[]> {
+    return ctx.graphClient.query<PodDeployments.PodDeployment[], PodDeployments.Variables>(
         {
             name: "podDeployments",
             variables: {
