@@ -36,7 +36,6 @@ describe("updateK8Specs", () => {
                 correlationId: "",
                 graphClient: {
                     endpoint: null,
-                    query: null,
                     mutate: null,
                     executeQuery: null,
                     executeMutationFromFile: null,
