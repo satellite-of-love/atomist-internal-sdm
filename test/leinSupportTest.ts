@@ -41,7 +41,7 @@ describe("updateK8Specs", () => {
                     executeQuery: null,
                     executeMutationFromFile: null,
                     executeMutation: null,
-                    executeQueryFromFile: (q, v) => {
+                    query: (q, v) => {
                         return { commits: [{ sha: "" }] } as any;
                     },
                 },

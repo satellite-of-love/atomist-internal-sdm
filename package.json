@@ -20,13 +20,13 @@
     "url": "https://github.com/atomist/clojure-sdm/issues"
   },
   "dependencies": {
-    "@atomist/automation-client": "0.18.1-20180726234320",
+    "@atomist/automation-client": "0.18.1-20180728225753",
     "@atomist/automation-client-ext-dashboard": "0.1.0-20180705210657",
     "@atomist/automation-client-ext-logzio": "0.1.0-20180628224529",
     "@atomist/automation-client-ext-raven": "0.1.0-20180613131132",
     "@atomist/atomist-sdm": "0.1.4-20180716131742",
-    "@atomist/sdm": "0.3.2-20180727125411",
-    "@atomist/sdm-core": "0.3.2-20180727081056",
+    "@atomist/sdm": "0.3.2-20180730010005",
+    "@atomist/sdm-core": "0.3.2-20180730094924",
     "@atomist/sdm-pack-changelog": "0.1.1-20180713073534",
     "@atomist/sdm-pack-k8": "0.1.2-20180705162518",
     "@atomist/slack-messages": "^0.12.1",
