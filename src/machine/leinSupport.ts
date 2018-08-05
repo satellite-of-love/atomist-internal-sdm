@@ -318,8 +318,8 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                         logger.info("Spec updated, writing to " + f.path);
                         await f.setContent(JSON.stringify(spec, null, 2));
                         // send custom event to record deployment target
-                        const previousSha = (await fetchDockerImage(ctx, previousImage)).commits[0].sha;
-                        const currentSha = (await fetchDockerImage(ctx, currentImage)).commits[0].sha;
+                        const previousSha = (await fetchDockerImage(ctx, previousImage))[0].commits[0].sha;
+                        const currentSha = (await fetchDockerImage(ctx, currentImage))[0].commits[0].sha;
                         const target: PodDeployments.PodDeployment = {
                             deploymentName: spec.metadata.name as string,
                             imageTag: currentImage,

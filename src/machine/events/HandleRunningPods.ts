@@ -92,8 +92,8 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
     };
 }
 
-export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): Promise<FetchDockerImage.DockerImage> {
-    return ctx.graphClient.query<FetchDockerImage.DockerImage, FetchDockerImage.Variables>(
+export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): Promise<FetchDockerImage.DockerImage[]> {
+    return ctx.graphClient.query<FetchDockerImage.DockerImage[], FetchDockerImage.Variables>(
         {
             name: "fetchDockerImage",
             variables:
