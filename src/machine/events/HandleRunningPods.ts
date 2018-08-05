@@ -94,7 +94,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
 
 export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): Promise<FetchDockerImage.DockerImage> {
     return ctx.graphClient.executeQueryFromFile<FetchDockerImage.DockerImage, FetchDockerImage.Variables>(
-        "./src/graphql/query/podDeployments.graphql",
+        "graphql/query/podDeployments.graphql",
         {
             imageName: imageTag,
         });
@@ -102,7 +102,7 @@ export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): P
 
 async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod): Promise<PodDeployments.PodDeployment> {
     return ctx.graphClient.executeQueryFromFile<PodDeployments.PodDeployment, PodDeployments.Variables>(
-        "./src/graphql/query/podDeployments.graphql",
+        "graphql/query/podDeployments.graphql",
         {
             env: pod.environment,
             sha: pod.containers[0].image.commits[0].sha,
