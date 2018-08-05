@@ -1,0 +1,10 @@
+query podDeployments($env: String!, $sha: String!, $imageTag: String!) {
+    PodDeployment(environment: $env, sha: $sha, imageTag: $imageTag, _orderBy: "timestamp", _ordering: desc){
+        sha
+        deploymentName
+        imageTag
+        previousSha
+        targetReplicas
+        environment
+    }
+}

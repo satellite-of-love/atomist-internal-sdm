@@ -2,9 +2,12 @@ subscription runningPods {
   K8Pod {
     environment
     containers(state: "running") @required {
-      name
+      imageName
       state
       image {
+        pods {
+          environment
+        }
         commits {
           sha
           repo {

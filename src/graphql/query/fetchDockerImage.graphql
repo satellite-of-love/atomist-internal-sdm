@@ -1,0 +1,7 @@
+query fetchDockerImage($imageName: String!) {
+    DockerImage(imageName: $imageName){
+        commits {
+            sha @required
+        }
+    }
+}

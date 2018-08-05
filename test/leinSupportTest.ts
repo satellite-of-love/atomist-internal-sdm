@@ -31,7 +31,27 @@ describe("updateK8Specs", () => {
             const version = "1.2.3-123123123";
             const p = InMemoryProject.from(new SimpleRepoId("atomisthq", "pochta"),
                 { path: inProject, content: contents });
-            await updateK8Spec(p, {} as HandlerContext, { owner: "atomisthq", repo: "pochta", version });
+            await updateK8Spec(p, {
+                teamId: "",
+                correlationId: "",
+                graphClient: {
+                    endpoint: null,
+                    query: null,
+                    mutate: null,
+                    executeQuery: null,
+                    executeMutationFromFile: null,
+                    executeMutation: null,
+                    executeQueryFromFile: (q, v) => {
+                        return { commits: [{ sha: "" }] } as any;
+                    },
+                },
+                messageClient: {
+                    respond: null,
+                    send: (a, b) => null,
+                    addressUsers: null,
+                    addressChannels: null,
+                },
+            } as HandlerContext, { owner: "atomisthq", repo: "pochta", version });
             const updatedSpec = await (await p.findFile(inProject)).getContent();
             const updatedSpecOjb = JSON.parse(updatedSpec);
             assert(updatedSpecOjb.spec.template.spec.containers[0].image === "sforzando-dockerv2-local.jfrog.io/pochta:1.2.3-123123123");
