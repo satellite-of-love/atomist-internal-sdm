@@ -6,5 +6,6 @@ query podDeployments($env: String!, $sha: String!, $imageTag: String!) {
         previousSha
         targetReplicas
         environment
+        timestamp
     }
 }

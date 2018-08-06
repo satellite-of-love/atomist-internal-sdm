@@ -206,6 +206,7 @@ export const LeinSupport: ExtensionPack = {
                             owner: cli.parameters.owner,
                             repo: cli.parameters.repo,
                             version: cli.parameters.version,
+                            branch: cli.parameters.env,
                         });
                         await prj.commit(`Update ${cli.parameters.owner}/${cli.parameters.repo} to ${cli.parameters.version}`);
                         await prj.push();
@@ -326,7 +327,8 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                             targetReplicas: spec.spec.replicas,
                             sha: currentSha,
                             previousSha,
-                            environment: project.id.branch,
+                            environment: params.branch,
+                            timestamp: Date.now(),
                         };
                         await ctx.messageClient.send(target, addressEvent("PodDeployment"));
                         logger.info("Spec written " + f.path);
@@ -381,7 +383,7 @@ function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): Exe
             context: rwlc.context,
         },
             async (project: GitProject) => {
-                await updateK8Spec(project, rwlc.context, { owner: id.owner, repo: id.repo, version });
+                await updateK8Spec(project, rwlc.context, { owner: id.owner, repo: id.repo, version, branch });
                 await project.commit(`Update ${id.owner}/${id.repo} to ${version}`);
                 await project.push();
                 return SuccessPromise;

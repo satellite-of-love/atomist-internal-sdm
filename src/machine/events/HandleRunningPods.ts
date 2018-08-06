@@ -68,7 +68,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
                 return pod.environment = deployedPod.environment;
             }).length;
             const numTargetPods = targetDeployment[0].targetReplicas;
-            desc = desc + ` (${numCurrentPods}/${numTargetPods}`;
+            desc = desc + ` (${numCurrentPods}/${numTargetPods})`;
             if (numCurrentPods === numTargetPods) {
                 // then we know we have a successful deployment
                 // need to find commits between current and previous!
