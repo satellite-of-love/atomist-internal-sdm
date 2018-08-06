@@ -305,9 +305,9 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                                     const nv = container.image.split("/")[1].split(":");
                                     if (nv[1] !== version) {
                                         dirty = true;
-                                        previousImage = container.image;
+                                        previousImage = nv[0] + ":" + nv[1];
                                         container.image = `${repoWithName}:${version}`;
-                                        currentImage = container.image;
+                                        currentImage = nv[0] + ":" + version;
                                     }
                                 }
                                 acc.push(container);
