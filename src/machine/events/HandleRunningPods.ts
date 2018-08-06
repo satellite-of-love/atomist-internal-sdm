@@ -94,7 +94,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
 
 export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): Promise<FetchDockerImage.DockerImage[]> {
     logger.info(`Fetching docker images with tag ${imageTag}`);
-    const images = await ctx.graphClient.query<FetchDockerImage.DockerImage[], FetchDockerImage.Variables>(
+    const images = await ctx.graphClient.query<FetchDockerImage.Query, FetchDockerImage.Variables>(
         {
             name: "fetchDockerImage",
             variables:
@@ -103,11 +103,11 @@ export async function fetchDockerImage(ctx: HandlerContext, imageTag: string): P
             },
         });
     logger.info(`Found Docker images with tag ${imageTag}: ${JSON.stringify(images)}`);
-    return images;
+    return images.DockerImage;
 }
 
 async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod): Promise<PodDeployments.PodDeployment[]> {
-    return ctx.graphClient.query<PodDeployments.PodDeployment[], PodDeployments.Variables>(
+    const deps = await ctx.graphClient.query<PodDeployments.Query, PodDeployments.Variables>(
         {
             name: "podDeployments",
             variables: {
@@ -116,4 +116,6 @@ async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod
                 imageTag: pod.containers[0].imageName,
             },
         });
+    logger.info(`Found PodDeployments: ${deps}`);
+    return deps.PodDeployment;
 }
