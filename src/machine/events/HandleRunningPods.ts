@@ -62,12 +62,12 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
         if (deployGoal && desc) {
 
             // grab deploymentStarted event
-            const targetDeployment = await fetchDeploymentTarget(context, pod);
+            const targetDeployments = await fetchDeploymentTarget(context, pod);
 
             const numCurrentPods = pod.containers[0].image.pods.filter(deployedPod => {
                 return pod.environment = deployedPod.environment;
             }).length;
-            const numTargetPods = targetDeployment[0].targetReplicas;
+            const numTargetPods = targetDeployments[0].targetReplicas;
             desc = desc + ` (${numCurrentPods}/${numTargetPods})`;
             logger.info(`Pods: ${numCurrentPods} / ${numTargetPods}`);
             if (numCurrentPods === numTargetPods) {
@@ -117,6 +117,6 @@ async function fetchDeploymentTarget(ctx: HandlerContext, pod: RunningPods.K8Pod
                 imageTag: pod.containers[0].imageName,
             },
         });
-    logger.info(`Found PodDeployments: ${deps}`);
+    logger.info(`Found PodDeployments: ${JSON.stringify(deps)}`);
     return deps.PodDeployment;
 }
