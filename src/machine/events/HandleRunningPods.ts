@@ -80,7 +80,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
                     });
                 } else {
                     await updateGoal(context, deployGoal, {
-                        state: SdmGoalState.requested,
+                        state: SdmGoalState.in_process,
                         description: desc + ` (${numCurrentPods}/${numTargetPods})`,
                         url: deployGoal.url,
                     });
