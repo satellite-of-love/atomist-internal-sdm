@@ -321,10 +321,14 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
                         // send custom event to record deployment target
                         const previousSha = (await fetchDockerImage(ctx, previousImage))[0].commits[0].sha;
                         const currentSha = (await fetchDockerImage(ctx, currentImage))[0].commits[0].sha;
+                        let targetReplicas = spec.spec.replicas;
+                        if (params.branch === "prod" && f.path.indexOf("/us-east1") <= 0) {
+                            targetReplicas = targetReplicas * 3;
+                        }
                         const target: PodDeployments.PodDeployment = {
                             deploymentName: spec.metadata.name as string,
                             imageTag: currentImage,
-                            targetReplicas: spec.spec.replicas,
+                            targetReplicas,
                             sha: currentSha,
                             previousSha,
                             environment: params.branch,
