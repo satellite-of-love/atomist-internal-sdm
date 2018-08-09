@@ -64,23 +64,30 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
             // grab deploymentStarted event
             const targetDeployments = await fetchDeploymentTarget(context, pod);
 
-            const numCurrentPods = pod.containers[0].image.pods.filter(deployedPod => {
-                return pod.environment = deployedPod.environment;
-            }).length;
-            const numTargetPods = targetDeployments[0].targetReplicas;
-            desc = desc + ` (${numCurrentPods}/${numTargetPods})`;
-            logger.info(`Pods: ${numCurrentPods} / ${numTargetPods}`);
-            if (numCurrentPods === numTargetPods) {
-                // then we know we have a successful deployment
-                // need to find commits between current and previous!
-                await updateGoal(context, deployGoal, {
-                    state: SdmGoalState.success,
-                    description: desc,
-                    url: deployGoal.url,
-                });
+            if (targetDeployments && targetDeployments.length >= 1) {
+                const numCurrentPods = pod.containers[0].image.pods.filter(deployedPod => {
+                    return pod.environment = deployedPod.environment;
+                }).length;
+                const numTargetPods = targetDeployments[0].targetReplicas;
+                logger.info(`Pods: ${numCurrentPods} / ${numTargetPods}`);
+                if (numCurrentPods >= numTargetPods) {
+                    // then we know we have a successful deployment
+                    // need to find commits between current and previous!
+                    await updateGoal(context, deployGoal, {
+                        state: SdmGoalState.success,
+                        description: desc + ` (${numTargetPods}/${numTargetPods})`,
+                        url: deployGoal.url,
+                    });
+                } else {
+                    await updateGoal(context, deployGoal, {
+                        state: SdmGoalState.requested,
+                        description: desc + ` (${numCurrentPods}/${numTargetPods})`,
+                        url: deployGoal.url,
+                    });
+                }
             } else {
                 await updateGoal(context, deployGoal, {
-                    state: SdmGoalState.in_process,
+                    state: SdmGoalState.success,
                     description: desc,
                     url: deployGoal.url,
                 });
