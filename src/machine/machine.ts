@@ -33,7 +33,7 @@ import {
 import { executeTag } from "@atomist/sdm-core";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
 import { NoGoals, summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
-import { IsLein } from "@atomist/sdm-core/pack/clojure/pushTests";
+import { IsLein } from "../support/pushTest";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
