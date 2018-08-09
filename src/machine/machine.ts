@@ -24,20 +24,20 @@ import {
     whenPushSatisfies,
 } from "@atomist/sdm";
 import {
-    TagGoal,
-} from "@atomist/sdm-core";
-import {
     DisableDeploy,
     EnableDeploy,
 } from "@atomist/sdm-core";
 import { executeTag } from "@atomist/sdm-core";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
 import { NoGoals, summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
-import { IsLein } from "../support/pushTest";
+import {
+    TagGoal,
+} from "@atomist/sdm-core";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
 import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureRepo";
+import { IsLein } from "../support/pushTest";
 import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
 import { LeinSupport } from "./leinSupport";
 
