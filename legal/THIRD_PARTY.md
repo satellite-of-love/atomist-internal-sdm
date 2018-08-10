@@ -1,6 +1,6 @@
-# @atomist/clojure-sdm
+# @atomist/atomist-internal-sdm
 
-This page details all runtime OSS dependencies of `@atomist/clojure-sdm`.
+This page details all runtime OSS dependencies of `@atomist/atomist-internal-sdm`.
 
 ## Licenses
 
