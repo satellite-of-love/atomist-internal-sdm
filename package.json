@@ -27,7 +27,7 @@
     "@atomist/sdm": "0.3.2-20180730010005",
     "@atomist/sdm-core": "0.3.2-20180730094924",
     "@atomist/sdm-pack-clojure": "^0.2.8",
-    "@atomist/sdm-pack-fingerprints": "^0.1.10",
+    "@atomist/sdm-pack-fingerprints": "^0.1.11",
     "@atomist/slack-messages": "^0.12.1",
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
