@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
 import {
     not,
     PredicatePushTest,
@@ -22,6 +23,7 @@ import {
     SoftwareDeliveryMachineConfiguration,
     ToDefaultBranch,
     whenPushSatisfies,
+    allSatisfied,
 } from "@atomist/sdm";
 import {
     DisableDeploy,
@@ -36,10 +38,16 @@ import {
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
-import { MaterialChangeToClojureRepo } from "../support/materialChangeToClojureRepo";
-import { IsLein } from "../support/pushTest";
-import { LeinBuildGoals, LeinDefaultBranchBuildGoals, LeinDefaultBranchDockerGoals, LeinDockerGoals } from "./goals";
-import { LeinSupport } from "./leinSupport";
+import { DeployToProd, DeployToStaging, IntegrationTestGoal, LeinDefaultBranchDockerGoals, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
+
+import { LeinSupport, IsLein, MaterialChangeToClojureRepo, LeinDockerGoals, LeinDefaultBranchBuildGoals, LeinBuildGoals } from "@atomist/sdm-pack-clojure";
+import { FingerprintSupport } from "@atomist/sdm-pack-fingerprints";
+import {k8SpecUpdater, K8SpecUpdaterParameters, addCacheHooks, updateK8Spec} from "./k8Support"
+import { handleRuningPods } from "./events/HandleRunningPods";
+import { subscription, ingester } from "@atomist/automation-client/graph/graphQL";
+import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
+import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
+import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 
 export const HasAtomistFile: PredicatePushTest = predicatePushTest(
     "Has Atomist file",
@@ -54,8 +62,6 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         name: "Atomist Software Delivery Machine",
         configuration,
     },
-
-        // Clojure
 
         whenPushSatisfies(IsLein, not(HasTravisFile), not(MaterialChangeToClojureRepo))
             .itMeans("No material change")
@@ -78,17 +84,89 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
             .setGoals(LeinBuildGoals),
     );
 
+    sdm.addExtensionPacks(
+        LeinSupport, FingerprintSupport
+    );
+
     sdm.addCommand(DisableDeploy);
     sdm.addCommand(EnableDeploy);
 
     sdm.addGoalImplementation("tag", TagGoal,
         executeTag(sdm.configuration.sdm.projectLoader));
 
-    sdm.addExtensionPacks(
-        LeinSupport,
+    sdm.addGoalApprovalRequestVote(gitHubTeamVote("atomist-automation"));
+
+    sdm.addIngester(ingester("podDeployments"));
+
+    sdm.addGoalImplementation("updateStagingK8Specs", UpdateStagingK8SpecsGoal,
+        k8SpecUpdater(sdm.configuration.sdm, "staging"));
+    sdm.addGoalImplementation("updateProdK8Specs", UpdateProdK8SpecsGoal,
+        k8SpecUpdater(sdm.configuration.sdm, "prod"));
+    // sdm.addGoalImplementation("integrationTests", IntegrationTestGoal,
+    //     executeSmokeTests(sdm.configuration.sdm.projectLoader, {
+    //         team: "T1L0VDKJP",
+    //         org: "atomisthqa",
+    //         port: 2867,
+    //         sdm: new GitHubRepoRef("atomist", "sample-sdm"),
+    //         graphql: "https://automation-staging.atomist.services/graphql/team",
+    //         api: "https://automation-staging.atomist.services/registration",
+    //     }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild"),
+    // );
+
+    sdm.addKnownSideEffect(
+        DeployToStaging,
+        "deployToStaging",
+        allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
     );
 
-    sdm.addGoalApprovalRequestVote(gitHubTeamVote("atomist-automation"));
+    sdm.addKnownSideEffect(
+        DeployToProd,
+        "deployToProd",
+        allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
+    );
+
+    sdm.addEvent({
+        name: "handleRunningPod",
+        description: "Update goal based on running pods in an environemnt",
+        subscription: subscription("runningPods"),
+        listener: handleRuningPods(),
+    });
+
+    sdm.addAutofix(
+        {
+            name: "maven-repo-cache",
+            transform: addCacheHooks,
+            pushTest: allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
+        },
+    );
+
+    sdm.addCommand<K8SpecUpdaterParameters>({
+        name: "k8SpecUpdater",
+        description: "Update k8 specs",
+        intent: "update spec",
+        paramsMaker: K8SpecUpdaterParameters,
+        listener: async cli => {
+
+            return CloningProjectLoader.doWithProject({
+                credentials: { token: cli.parameters.token },
+                id: new GitHubRepoRef("atomisthq", "atomist-k8-specs", cli.parameters.env),
+                readOnly: false,
+                context: cli.context,
+            },
+                async (prj: GitProject) => {
+                    const result = await updateK8Spec(prj, cli.context, {
+                        owner: cli.parameters.owner,
+                        repo: cli.parameters.repo,
+                        version: cli.parameters.version,
+                        branch: cli.parameters.env,
+                    });
+                    await prj.commit(`Update ${cli.parameters.owner}/${cli.parameters.repo} to ${cli.parameters.version}`);
+                    await prj.push();
+                    return result;
+                },
+            );
+        },
+    });
 
     summarizeGoalsInGitHubStatus(sdm);
 

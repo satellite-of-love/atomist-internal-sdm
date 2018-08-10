@@ -19,7 +19,7 @@ import { SimpleRepoId } from "@atomist/automation-client/operations/common/RepoI
 import { InMemoryProject } from "@atomist/automation-client/project/mem/InMemoryProject";
 import * as fs from "fs";
 import * as assert from "power-assert";
-import { addCacheHooks, updateK8Spec } from "../src/machine/leinSupport";
+import { addCacheHooks, updateK8Spec } from "../src/machine/k8Support";
 
 describe("updateK8Specs", () => {
 

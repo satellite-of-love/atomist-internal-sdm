@@ -22,7 +22,6 @@ import {
     Goal,
     Goals,
     goals,
-    IndependentOfEnvironment,
     ProductionEnvironment,
     ReviewGoal,
     StagingEnvironment,
@@ -33,17 +32,9 @@ import {
     VersionGoal,
 } from "@atomist/sdm-core";
 
-// GOALSET Definition
+import { PublishGoal, LeinDockerGoals, DefaultBranchGoals } from "@atomist/sdm-pack-clojure";
 
-export const PublishGoal = new Goal({
-    uniqueName: "Publish",
-    environment: IndependentOfEnvironment,
-    orderedName: "2-publish",
-    displayName: "publish",
-    workingDescription: "Publishing...",
-    completedDescription: "Published",
-    failedDescription: "Published failed",
-});
+// GOALSET Definition
 
 export const UpdateStagingK8SpecsGoal = new Goal({
     uniqueName: "UpdateStagingK8Specs",
@@ -100,25 +91,6 @@ export const DeployToProd = new Goal({
     completedDescription: "Deployed to `prod`",
     failedDescription: "Deployment to `prod` failed",
 });
-
-// Just running review and autofix
-export const CheckGoals: Goals = goals("Check")
-    .plan(VersionGoal, ReviewGoal);
-
-export const DefaultBranchGoals: Goals = goals("Default Branch")
-    .plan(AutofixGoal, TagGoal);
-
-// Build including docker build
-export const LeinBuildGoals: Goals = goals("Lein Build")
-    .plan(CheckGoals)
-    .plan(BuildGoal).after(ReviewGoal);
-
-export const LeinDefaultBranchBuildGoals: Goals = goals("Lein Build")
-    .plan(LeinBuildGoals, DefaultBranchGoals)
-    .plan(PublishGoal).after(BuildGoal);
-
-export const LeinDockerGoals: Goals = goals("Lein Docker Build")
-    .plan(LeinBuildGoals, DockerBuildGoal);
 
 export const LeinDefaultBranchDockerGoals: Goals = goals("Lein Docker Build")
     .plan(LeinDockerGoals, DefaultBranchGoals)

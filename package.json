@@ -22,14 +22,12 @@
   "dependencies": {
     "@atomist/atomist-sdm": "0.1.4-20180716131742",
     "@atomist/automation-client": "0.18.1-20180728225753",
-    "@atomist/automation-client-ext-dashboard": "0.1.0-20180705210657",
     "@atomist/automation-client-ext-logzio": "0.1.0-20180628224529",
     "@atomist/automation-client-ext-raven": "0.1.0-20180613131132",
-    "@atomist/clj-editors": "0.1.2",
     "@atomist/sdm": "0.3.2-20180730010005",
     "@atomist/sdm-core": "0.3.2-20180730094924",
-    "@atomist/sdm-pack-changelog": "0.1.1-20180713073534",
-    "@atomist/sdm-pack-k8": "0.1.2-20180705162518",
+    "@atomist/sdm-pack-clojure": "^0.2.8",
+    "@atomist/sdm-pack-fingerprints": "^0.1.9",
     "@atomist/slack-messages": "^0.12.1",
     "fs-extra": "^6.0.0",
     "lodash": "^4.17.10",
@@ -37,6 +35,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
+    "@atomist/cli": "^0.5.2",
     "@types/fs-extra": "^5.0.4",
     "@types/lodash": "^4.14.116",
     "@types/mocha": "^2.2.48",
