@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
+import { ingester, subscription} from "@atomist/automation-client/graph/graphQL";
+import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
+import { GitProject } from "@atomist/automation-client/project/git/GitProject";
 import {
+    allSatisfied,
     not,
     PredicatePushTest,
     predicatePushTest,
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
     ToDefaultBranch,
-    whenPushSatisfies,
-    allSatisfied,
-} from "@atomist/sdm";
+    whenPushSatisfies} from "@atomist/sdm";
 import {
     DisableDeploy,
     EnableDeploy,
@@ -35,19 +36,22 @@ import { NoGoals, summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
 import {
     TagGoal,
 } from "@atomist/sdm-core";
+import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
 import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
-import { DeployToProd, DeployToStaging, IntegrationTestGoal, LeinDefaultBranchDockerGoals, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
+import { DeployToProd, DeployToStaging, LeinDefaultBranchDockerGoals, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 
-import { LeinSupport, IsLein, MaterialChangeToClojureRepo, LeinDockerGoals, LeinDefaultBranchBuildGoals, LeinBuildGoals } from "@atomist/sdm-pack-clojure";
+import {
+    IsLein,
+    LeinBuildGoals,
+    LeinDefaultBranchBuildGoals,
+    LeinDockerGoals,
+    LeinSupport,
+    MaterialChangeToClojureRepo} from "@atomist/sdm-pack-clojure";
 import { FingerprintSupport } from "@atomist/sdm-pack-fingerprints";
-import {k8SpecUpdater, K8SpecUpdaterParameters, addCacheHooks, updateK8Spec} from "./k8Support"
 import { handleRuningPods } from "./events/HandleRunningPods";
-import { subscription, ingester } from "@atomist/automation-client/graph/graphQL";
-import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
-import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
-import { GitProject } from "@atomist/automation-client/project/git/GitProject";
+import {addCacheHooks, k8SpecUpdater, K8SpecUpdaterParameters, updateK8Spec} from "./k8Support";
 
 export const HasAtomistFile: PredicatePushTest = predicatePushTest(
     "Has Atomist file",
@@ -85,8 +89,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     );
 
     sdm.addExtensionPacks(
-        LeinSupport, FingerprintSupport
-    );
+        LeinSupport, FingerprintSupport);
 
     sdm.addCommand(DisableDeploy);
     sdm.addCommand(EnableDeploy);

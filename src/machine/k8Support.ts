@@ -25,7 +25,6 @@ import {
     Secrets,
     SuccessPromise,
 } from "@atomist/automation-client";
-import { ingester, subscription } from "@atomist/automation-client/graph/graphQL";
 import { GitHubRepoRef } from "@atomist/automation-client/operations/common/GitHubRepoRef";
 
 import { SimpleProjectEditor } from "@atomist/automation-client/operations/edit/projectEditor";
@@ -39,35 +38,15 @@ import {
     RunWithLogContext,
     SoftwareDeliveryMachineOptions,
 } from "@atomist/sdm";
-import {
-    DockerBuildGoal,
-    DockerOptions,
-    executeDockerBuild,
-    executeVersioner,
-    readSdmVersion,
-    VersionGoal,
-} from "@atomist/sdm-core";
 
 import { addressEvent } from "@atomist/automation-client/spi/message/MessageClient";
-import {
-    asSpawnCommand,
-    spawnAndWatch,
-} from "@atomist/sdm/api-helper/misc/spawned";
 import * as fs from "fs";
 import * as _ from "lodash";
 import * as dir from "node-dir";
 import * as path from "path";
 import { PodDeployments } from "../typings/types";
-import { fetchDockerImage, handleRuningPods } from "./events/HandleRunningPods";
-import {
-    DeployToProd,
-    DeployToStaging,
-    IntegrationTestGoal,
-    UpdateProdK8SpecsGoal,
-    UpdateStagingK8SpecsGoal,
-} from "./goals";
+import { fetchDockerImage } from "./events/HandleRunningPods";
 import { rwlcVersion } from "./release";
-import { executeSmokeTests } from "@atomist/atomist-sdm/machine/smokeTest";
 
 function filesAsync(dirName: string): Promise<string[]> {
     return new Promise((resolve, reject) => {

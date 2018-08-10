@@ -17,22 +17,17 @@
 // GOAL Definition
 
 import {
-    AutofixGoal,
-    BuildGoal,
     Goal,
     Goals,
     goals,
     ProductionEnvironment,
-    ReviewGoal,
     StagingEnvironment,
 } from "@atomist/sdm";
 import {
-    DockerBuildGoal,
     TagGoal,
-    VersionGoal,
 } from "@atomist/sdm-core";
 
-import { PublishGoal, LeinDockerGoals, DefaultBranchGoals } from "@atomist/sdm-pack-clojure";
+import { DefaultBranchGoals, LeinDockerGoals } from "@atomist/sdm-pack-clojure";
 
 // GOALSET Definition
 
