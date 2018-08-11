@@ -8,7 +8,7 @@
             "env": [
               {
                 "name": "ATOMIST_DEPLOYMENT_NAME",
-                "value": "clojure-sdm"
+                "value": "atomist-internal-sdm"
               },
               {
                 "name": "ATOMIST_DEPLOYMENT_NAMESPACE",
