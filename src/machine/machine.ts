@@ -25,7 +25,9 @@ import {
     SoftwareDeliveryMachine,
     SoftwareDeliveryMachineConfiguration,
     ToDefaultBranch,
-    whenPushSatisfies} from "@atomist/sdm";
+    whenPushSatisfies,
+    FingerprintGoal,
+    goals} from "@atomist/sdm";
 import {
     DisableDeploy,
     EnableDeploy,
@@ -73,19 +75,19 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
 
         whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile, ToDefaultBranch, MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Service with Leiningen")
-            .setGoals(LeinDefaultBranchDockerGoals),
+            .setGoals(goals("service with fingerprints on master").plan(LeinDefaultBranchDockerGoals, FingerprintGoal)),
 
         whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, HasAtomistDockerfile, MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Service with Leiningen")
-            .setGoals(LeinDockerGoals),
+            .setGoals(goals("service with fingerprints").plan(LeinDockerGoals,FingerprintGoal)),
 
         whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile), ToDefaultBranch, MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Library with Leiningen")
-            .setGoals(LeinDefaultBranchBuildGoals),
+            .setGoals(goals("library on master with fingerprints").plan(LeinDefaultBranchBuildGoals,FingerprintGoal)),
 
         whenPushSatisfies(IsLein, not(HasTravisFile), HasAtomistFile, not(HasAtomistDockerfile), MaterialChangeToClojureRepo)
             .itMeans("Build a Clojure Library with Leiningen")
-            .setGoals(LeinBuildGoals),
+            .setGoals(goals("library with fingerprints").plan(LeinBuildGoals,FingerprintGoal)),
     );
 
     sdm.addExtensionPacks(
