@@ -1,5 +1,5 @@
 {
-  "name": "@atomist/atomist-internal-sdm",
+  "name": "@atomist/clojure-sdm",
   "version": "0.1.1",
   "description": "an Atomist SDM to deliver Clojure projects",
   "author": "Atomist, Inc.",
