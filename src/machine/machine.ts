@@ -52,9 +52,9 @@ import {
     LeinSupport,
     MaterialChangeToClojureRepo} from "@atomist/sdm-pack-clojure";
 import { FingerprintSupport } from "@atomist/sdm-pack-fingerprints";
+import {RccaSupport} from "@atomist/sdm-pack-rcca";
 import { handleRuningPods } from "./events/HandleRunningPods";
 import {addCacheHooks, k8SpecUpdater, K8SpecUpdaterParameters, updateK8Spec} from "./k8Support";
-import {RccaSupport} from "@atomist/sdm-pack-rcca";
 
 export const HasAtomistFile: PredicatePushTest = predicatePushTest(
     "Has Atomist file",
@@ -92,9 +92,9 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     );
 
     sdm.addExtensionPacks(
-        LeinSupport, 
+        LeinSupport,
         FingerprintSupport,
-        RccaSupport
+        RccaSupport,
     );
 
     sdm.addCommand(DisableDeploy);
