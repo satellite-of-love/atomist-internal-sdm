@@ -54,6 +54,7 @@ import {
 import { FingerprintSupport } from "@atomist/sdm-pack-fingerprints";
 import { handleRuningPods } from "./events/HandleRunningPods";
 import {addCacheHooks, k8SpecUpdater, K8SpecUpdaterParameters, updateK8Spec} from "./k8Support";
+import {RccaSupport} from "@atomist/sdm-pack-rcca";
 
 export const HasAtomistFile: PredicatePushTest = predicatePushTest(
     "Has Atomist file",
@@ -91,7 +92,10 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     );
 
     sdm.addExtensionPacks(
-        LeinSupport, FingerprintSupport);
+        LeinSupport, 
+        FingerprintSupport,
+        RccaSupport
+    );
 
     sdm.addCommand(DisableDeploy);
     sdm.addCommand(EnableDeploy);
