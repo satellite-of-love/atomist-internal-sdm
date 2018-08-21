@@ -46,7 +46,6 @@ import * as dir from "node-dir";
 import * as path from "path";
 import { PodDeployments } from "../typings/types";
 import { fetchDockerImage } from "./events/HandleRunningPods";
-import * as github from "@atomist/automation-client/internal/";
 import { rwlcVersion } from "./release";
 
 function filesAsync(dirName: string): Promise<string[]> {
