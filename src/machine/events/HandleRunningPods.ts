@@ -40,12 +40,13 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
         const id = new GitHubRepoRef(commit.repo.owner, commit.repo.name, commit.sha);
 
         let deployGoal;
-        let desc;
+        let desc, approvalDesc;
 
         if (pod.environment === "staging") {
             try {
                 deployGoal = await findSdmGoalOnCommit(context, id, commit.repo.org.provider.providerId, DeployToStaging);
                 desc = DeployToStaging.successDescription;
+                approvalDesc = DeployToStaging.waitingForApprovalDescription;
 
             } catch (err) {
                 logger.info(`No goal staging deploy goal found`);
@@ -54,6 +55,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
             try {
                 deployGoal = await findSdmGoalOnCommit(context, id, commit.repo.org.provider.providerId, DeployToProd);
                 desc = DeployToProd.successDescription;
+                approvalDesc = DeployToProd.waitingForApprovalDescription;
             } catch (err) {
                 logger.info(`No goal prod deploy goal found`);
             }
@@ -75,7 +77,7 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
                     // need to find commits between current and previous!
                     await updateGoal(context, deployGoal, {
                         state: SdmGoalState.success,
-                        description: desc + ` (${numTargetPods}/${numTargetPods})`,
+                        description: approvalDesc + ` (${numTargetPods}/${numTargetPods})`,
                         url: deployGoal.url,
                     });
                 } else {
