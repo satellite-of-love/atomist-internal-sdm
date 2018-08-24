@@ -40,7 +40,8 @@ export function handleRuningPods(): OnEvent<RunningPods.Subscription, NoParamete
         const id = new GitHubRepoRef(commit.repo.owner, commit.repo.name, commit.sha);
 
         let deployGoal;
-        let desc, approvalDesc;
+        let desc;
+        let approvalDesc;
 
         if (pod.environment === "staging") {
             try {
