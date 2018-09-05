@@ -25,7 +25,7 @@ import {
 } from "@atomist/sdm";
 import {
     TagGoal,
-} from "@atomist/sdm-core";
+} from "@atomist/sdm/pack/well-known-goals/commonGoals";
 
 import { DefaultBranchGoals, LeinDockerGoals } from "@atomist/sdm-pack-clojure";
 

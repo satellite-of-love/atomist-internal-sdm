@@ -19,7 +19,7 @@ import { SimpleRepoId } from "@atomist/automation-client/operations/common/RepoI
 import { InMemoryProject } from "@atomist/automation-client/project/mem/InMemoryProject";
 import * as fs from "fs";
 import * as assert from "power-assert";
-import { addCacheHooks, updateK8Spec } from "../src/machine/k8Support";
+import { addCacheHooks, updateK8Spec } from "../lib/machine/k8Support";
 
 describe("updateK8Specs", () => {
 
@@ -32,7 +32,7 @@ describe("updateK8Specs", () => {
             const p = InMemoryProject.from(new SimpleRepoId("atomisthq", "pochta"),
                 { path: inProject, content: contents });
             await updateK8Spec(p, {
-                teamId: "",
+                workspaceId: "",
                 correlationId: "",
                 graphClient: {
                     endpoint: null,
@@ -40,7 +40,7 @@ describe("updateK8Specs", () => {
                     executeQuery: null,
                     executeMutationFromFile: null,
                     executeMutation: null,
-                    query: (q, v) => {
+                    query: async a => {
                         return { DockerImage: [{ commits: [{ sha: "" }] }] } as any;
                     },
                 },

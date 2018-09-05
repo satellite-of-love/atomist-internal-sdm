@@ -33,9 +33,9 @@ import { Project } from "@atomist/automation-client/project/Project";
 import { doWithFiles } from "@atomist/automation-client/project/util/projectUtils";
 
 import {
+    ExecuteGoal,
     ExecuteGoalResult,
-    ExecuteGoalWithLog,
-    RunWithLogContext,
+    GoalInvocation,
     SoftwareDeliveryMachineOptions,
 } from "@atomist/sdm";
 
@@ -178,8 +178,8 @@ export const updateK8Spec: SimpleProjectEditor = async (project: Project, ctx: H
 
 };
 
-export function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): ExecuteGoalWithLog {
-    return async (rwlc: RunWithLogContext): Promise<ExecuteGoalResult> => {
+export function k8SpecUpdater(sdm: SoftwareDeliveryMachineOptions, branch: string): ExecuteGoal {
+    return async (rwlc: GoalInvocation): Promise<ExecuteGoalResult> => {
         const { credentials, id } = rwlc;
         const version = await rwlcVersion(rwlc);
         return sdm.projectLoader.doWithProject({

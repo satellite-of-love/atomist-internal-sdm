@@ -25,7 +25,6 @@ import { machine } from "./machine/machine";
 
 const machineOptions: ConfigureOptions = {
     requiredConfigurationValues: [
-        "sdm",
         "sdm.npm.npmrc",
         "sdm.npm.registry",
         "sdm.npm.access",

@@ -34,14 +34,13 @@ import {
 } from "@atomist/sdm-core";
 import { executeTag } from "@atomist/sdm-core";
 import { createSoftwareDeliveryMachine } from "@atomist/sdm-core";
-import { NoGoals, summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
-import {
-    TagGoal,
-} from "@atomist/sdm-core";
+import { summarizeGoalsInGitHubStatus } from "@atomist/sdm-core";
 import { CloningProjectLoader } from "@atomist/sdm/api-helper/project/cloningProjectLoader";
 import { HasTravisFile } from "@atomist/sdm/api-helper/pushtest/ci/ciPushTests";
-import { gitHubTeamVote } from "@atomist/sdm/api-helper/voter/githubTeamVote";
 import { hasFile } from "@atomist/sdm/api/mapping/support/commonPushTests";
+import {
+    NoGoals, TagGoal,
+} from "@atomist/sdm/pack/well-known-goals/commonGoals";
 import { DeployToProd, DeployToStaging, LeinDefaultBranchDockerGoals, UpdateProdK8SpecsGoal, UpdateStagingK8SpecsGoal } from "./goals";
 
 import {
@@ -100,10 +99,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     sdm.addCommand(DisableDeploy);
     sdm.addCommand(EnableDeploy);
 
-    sdm.addGoalImplementation("tag", TagGoal,
-        executeTag(sdm.configuration.sdm.projectLoader));
-
-    sdm.addGoalApprovalRequestVote(gitHubTeamVote("atomist-automation"));
+    sdm.addGoalImplementation("tag", TagGoal, executeTag());
 
     sdm.addIngester(ingester("podDeployments"));
 
@@ -122,13 +118,13 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
     //     }, new GitHubRepoRef("atomist", "sdm-smoke-test"), "nodeBuild"),
     // );
 
-    sdm.addKnownSideEffect(
+    sdm.addGoalSideEffect(
         DeployToStaging,
         "deployToStaging",
         allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
     );
 
-    sdm.addKnownSideEffect(
+    sdm.addGoalSideEffect(
         DeployToProd,
         "deployToProd",
         allSatisfied(IsLein, not(HasTravisFile), ToDefaultBranch),
