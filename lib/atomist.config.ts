@@ -36,6 +36,9 @@ const machineOptions: ConfigureOptions = {
 
 export const configuration: Configuration = {
     workspaceIds: ["T095SFFBK"],
+    logging: {
+        level: "debug",
+    },
     postProcessors: [
         configureLogzio,
         configureRaven,
