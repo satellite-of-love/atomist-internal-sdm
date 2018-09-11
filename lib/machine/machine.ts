@@ -95,6 +95,7 @@ export function machine(configuration: SoftwareDeliveryMachineConfiguration): So
         FingerprintSupport,
         RccaSupport,
     );
+    
 
     sdm.addCommand(DisableDeploy);
     sdm.addCommand(EnableDeploy);
