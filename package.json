@@ -26,7 +26,7 @@
     "@atomist/clj-editors": "^0.4.2",
     "@atomist/sdm": "^1.0.0-master.20180909210749",
     "@atomist/sdm-core": "^1.0.0-master.20180909211148",
-    "@atomist/sdm-pack-clojure": "^0.3.0",
+    "@atomist/sdm-pack-clojure": "^0.3.0-master.20180911215935",
     "@atomist/sdm-pack-docker": "^1.0.0-docker-pack.20180903214340",
     "@atomist/sdm-pack-fingerprints": "^0.2.0-master.20180910014348",
     "@atomist/sdm-pack-rcca": "^0.0.1",
