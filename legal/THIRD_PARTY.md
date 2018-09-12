@@ -38,11 +38,11 @@ Apache License 2.0 - [http://www.apache.org/licenses/LICENSE-2.0](http://www.apa
 |------|---------|-----------|------------|
 |`@atomist/automation-client-ext-logzio`|`0.1.0-20180628224529`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-logzio](https://github.com/atomist/automation-client-ext-logzio)|
 |`@atomist/automation-client-ext-raven`|`0.1.0-20180613131132`|Atomist, Inc.|[https://github.com/atomist/automation-client-ext-raven](https://github.com/atomist/automation-client-ext-raven)|
-|`@atomist/clj-editors`|`0.4.4`||[https://github.com/atomisthq/clj-editors](https://github.com/atomisthq/clj-editors)|
+|`@atomist/clj-editors`|`0.4.5`||[https://github.com/atomisthq/clj-editors](https://github.com/atomisthq/clj-editors)|
 |`@atomist/sdm-core`|`1.0.0-master.20180909211148`|Atomist|[https://github.com/atomist/sdm-core](https://github.com/atomist/sdm-core)|
 |`@atomist/sdm-pack-clojure`|`0.3.0-master.20180911215935`|Atomist, Inc.|[https://github.com/atomist/sdm-pack-clojure](https://github.com/atomist/sdm-pack-clojure)|
 |`@atomist/sdm-pack-docker`|`1.0.0-docker-pack.20180903214340`|Atomist|[https://github.com/atomist/sdm-pack-docker](https://github.com/atomist/sdm-pack-docker)|
-|`@atomist/sdm-pack-fingerprints`|`0.2.0-master.20180910014348`|Atomist|[https://github.com/atomist/sdm-pack-fingerprints](https://github.com/atomist/sdm-pack-fingerprints)|
+|`@atomist/sdm-pack-fingerprints`|`0.2.0-master.20180912165711`|Atomist|[https://github.com/atomist/sdm-pack-fingerprints](https://github.com/atomist/sdm-pack-fingerprints)|
 |`@atomist/sdm`|`1.0.0-master.20180909210749`|Atomist|[https://github.com/atomist/sdm](https://github.com/atomist/sdm)|
 |`@atomist/slack-messages`|`0.12.1`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
 |`@atomist/slack-messages`|`1.0.0`|Atomist|[https://github.com/atomist/slack-messages](https://github.com/atomist/slack-messages)|
